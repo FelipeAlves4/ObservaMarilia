@@ -3,7 +3,7 @@
 ## Antes de apresentar
 
 1. Use Node 24 e execute `npm ci` e `npm run dev`.
-2. Abra `http://127.0.0.1:5173`.
+2. Abra `http://127.0.0.1:5173/#/apresentacao`. Use essa tela como cola do roteiro; ao iniciar a demonstração, entre na área pública.
 3. Rode `npm run check` em outro terminal.
 4. Use dados fictícios. Se desejar anexar uma imagem, separe um JPG/PNG de até 2 MB.
 
