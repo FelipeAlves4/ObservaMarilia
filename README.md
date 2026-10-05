@@ -53,6 +53,8 @@ O relato enviado pelo cidadão já entra em **Em análise**, após a triagem dem
 
 ## Demonstração para a P2
 
+Abra `http://127.0.0.1:5173/#/apresentacao` para usar o modo de apresentação, com atalhos para o fluxo da banca, resumo técnico e delimitação clara do escopo.
+
 Consulte [docs/ROTEIRO_P2.md](docs/ROTEIRO_P2.md). O projeto inicia com **24 ocorrências fictícias**, sendo **3** do perfil compartilhado do cidadão demo.
 
 Os dados persistem em `data/observamarilia.sqlite`, ignorado pelo Git. Reiniciar a aplicação preserva relatos, fotos e histórico. Para reiniciar completamente uma demonstração, pare a aplicação e remova a pasta local `data`; a próxima execução recria a base inicial. Isso apaga somente os dados locais desse protótipo.
