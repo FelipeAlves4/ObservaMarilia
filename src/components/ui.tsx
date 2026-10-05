@@ -28,8 +28,8 @@ export function Badge({ children, tone }: { children: ReactNode; tone?: string }
   return <span className={'badge badge-' + color}>{children}</span>;
 }
 export interface StatItem { value: string | number; label: string; note?: string; color?: string }
-export function Stats({ items }: { items: StatItem[] }) {
-  return <div className="stats">{items.map((item,i) => <div className="stat" key={item.label} style={{ '--accent': item.color || ['#2563eb','#f59e0b','#10b981','#7c3aed'][i % 4] } as React.CSSProperties}>
+export function Stats({ items, className = '' }: { items: StatItem[]; className?: string }) {
+  return <div className={'stats ' + className}>{items.map((item,i) => <div className="stat" key={item.label} style={{ '--accent': item.color || ['#2563eb','#f59e0b','#10b981','#7c3aed'][i % 4] } as React.CSSProperties}>
     <strong>{typeof item.value === 'number' ? formatNumber(item.value) : item.value}</strong><span>{item.label}</span>{item.note ? <small>{item.note}</small> : null}
   </div>)}</div>;
 }
