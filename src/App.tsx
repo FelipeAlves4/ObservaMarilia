@@ -35,5 +35,5 @@ export default function App() {
   else if(route === '/como-funciona' || route === '/gestor/configuracoes') content=<Information settings={manager} />;
   else content=<div className="empty"><h1>Página não encontrada</h1><a className="btn" href="#/">Voltar ao início</a></div>;
   const body=<>{error ? <div className="connection-error"><ErrorBox error={error} /><button className="btn" onClick={() => void refresh()}>Tentar novamente</button></div> : null}{loading ? <div className="loading" role="status">Carregando dados da cidade…</div> : content}</>;
-  return manager ? <ManagerLayout route={route} period={period} setPeriod={setPeriod}>{body}</ManagerLayout> : <PublicLayout>{body}</PublicLayout>;
+  return manager ? <ManagerLayout route={route} period={period} setPeriod={setPeriod}>{body}</ManagerLayout> : <PublicLayout route={route}>{body}</PublicLayout>;
 }
