@@ -13,6 +13,7 @@ import { Alerts } from './pages/Alerts';
 import { Teams } from './pages/Teams';
 import { Indicators } from './pages/Indicators';
 import { Information } from './pages/Information';
+import { Presentation } from './pages/Presentation';
 export default function App() {
   const fullRoute=useRoute(); const [route,query='']=fullRoute.split('?'); const manager=route.startsWith('/gestor');
   const [period,setPeriod]=useState('7'); const { records,mine,loading,error,refresh }=useData();
@@ -22,6 +23,7 @@ export default function App() {
   if(route === '/relatar') return <Report />;
   if(route === '/acesso') content=<Information access />;
   else if(route === '/') content=<Home />;
+  else if(route === '/apresentacao') content=<Presentation />;
   else if(route === '/gestor') content=<Dashboard records={periodRecords} />;
   else if(route === '/mapa' || route === '/gestor/mapa') content=<MapPage key={fullRoute} records={manager ? periodRecords : records} manager={manager} initialRegion={initialRegion} />;
   else if(route === '/meus-relatos') content=<Occurrences records={mine} mine />;
