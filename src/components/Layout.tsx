@@ -30,8 +30,9 @@ export function ManagerLayout({ children, route, period, setPeriod }: { children
     </header><main id="main-content" className="manager-content" tabIndex={-1}>{children}</main><footer className="demo-footer">Protótipo acadêmico · dados fictícios · acesso de gestor demonstrativo</footer></div>
   </div>;
 }
-export function PublicLayout({ children }: { children: ReactNode }) {
-  return <div className="public-shell"><a className="skip-link" href="#main-content" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>Pular para o conteúdo</a><header className="public-header"><Brand /><nav aria-label="Navegação do cidadão"><a href="#/mapa">Mapa da cidade</a><a href="#/indicadores">Indicadores</a><a href="#/como-funciona">Como funciona</a></nav><div className="header-actions"><a className="btn btn-light" href="#/acesso">Entrar</a><a className="btn" href="#/relatar">Reportar problema</a></div></header>
-    <main id="main-content" className="public-content" tabIndex={-1}>{children}</main><footer className="public-footer"><Brand /><p>Projeto acadêmico · dados fictícios · sem vínculo com a Prefeitura de Marília</p><a href="#/gestor">Acessar demonstração do gestor</a></footer>
+export function PublicLayout({ children, route = '/' }: { children: ReactNode; route?: string }) {
+  const accountView=route === '/meus-relatos';
+  return <div className="public-shell"><a className="skip-link" href="#main-content" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>Pular para o conteúdo</a><header className={'public-header ' + (accountView ? 'account-header' : '')}><Brand /><nav aria-label="Navegação do cidadão"><a href="#/mapa">Mapa da cidade</a><a href="#/indicadores">Indicadores</a><a href="#/como-funciona">Como funciona</a></nav>{accountView ? <a className="citizen-account" href="#/acesso" title="Alternar acesso demonstrativo"><span className="avatar">FA</span><span><strong>Felipe Alves</strong><small>Minha conta</small></span><b aria-hidden="true">⌄</b></a> : <div className="header-actions"><a className="btn btn-light" href="#/acesso">Entrar</a><a className="btn" href="#/relatar">Reportar problema</a></div>}</header>
+    <main id="main-content" className={'public-content ' + (accountView ? 'account-content' : '')} tabIndex={-1}>{children}</main><footer className="public-footer"><Brand /><p>Projeto acadêmico · dados fictícios · sem vínculo com a Prefeitura de Marília</p><a href="#/gestor">Acessar demonstração do gestor</a></footer>
   </div>;
 }
