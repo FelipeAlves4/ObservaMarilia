@@ -18,7 +18,8 @@
 | Gestão | Abra o acesso de gestor pelo rodapé ou `#/gestor` | Mostre o painel e a fila. Busque o protocolo que acabou de gerar. |
 | Encaminhamento | Abra “Detalhes”, selecione “Equipe Norte 02” e escreva uma justificativa | Clique “Enviar equipe”. A ocorrência passa para Programada e a alteração fica registrada. |
 | Operação | Abra “Equipes” e depois `#/colaborador` | O Kanban mostra a tarefa programada. Selecione João Silva, abra a tarefa atribuída e inicie o serviço. |
-| Execução | No portal do colaborador, registre andamento e envie a conclusão | O serviço passa para Aguardando validação; a resolução não é automática. |\n| Validação | Retorne ao detalhe da ocorrência como gestor | Aprove a conclusão ou devolva para correção com justificativa. |
+| Execução | No portal do colaborador, registre andamento e envie a conclusão | O serviço passa para Aguardando validação; a resolução não é automática. |
+| Validação | Retorne ao detalhe da ocorrência como gestor | Aprove a conclusão ou devolva para correção com justificativa. |
 | Transparência | Volte a Meus relatos e aos indicadores | O cidadão acompanha o novo status; os gráficos e a taxa de solução refletem o banco. |
 | Persistência | Recarregue a página | O protocolo e o atendimento permanecem salvos no SQLite. |
 
