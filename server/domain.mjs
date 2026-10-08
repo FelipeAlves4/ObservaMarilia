@@ -1,13 +1,15 @@
 export const categories = ['Pavimentação', 'Iluminação', 'Lixo e limpeza', 'Árvores', 'Outros'];
 export const regions = ['Zona Norte', 'Centro', 'Zona Leste', 'Zona Sul', 'Zona Oeste'];
-export const statuses = ['Nova', 'Em análise', 'Programada', 'Em execução', 'Resolvida'];
+export const statuses = ['Nova', 'Em análise', 'Programada', 'Em execução', 'Aguardando validação', 'Resolvida'];
 export const teams = ['Equipe Norte 02', 'Equipe Centro 01', 'Equipe Luz 03', 'Equipe Limpeza 04', 'Equipe Verde 01'];
 export const transitions = {
   'Nova': ['Em análise'], 'Em análise': ['Programada'],
-  'Programada': ['Em execução'], 'Em execução': ['Resolvida'], 'Resolvida': [],
+  'Programada': ['Em execução'], 'Em execução': ['Aguardando validação'],
+  'Aguardando validação': ['Em execução', 'Resolvida'], 'Resolvida': [],
 };
 
 export class ValidationError extends Error {}
+export class AuthorizationError extends Error {}
 export function requiredText(value, name, min, max) {
   if (typeof value !== 'string' || value.trim().length < min || value.trim().length > max) {
     throw new ValidationError(`${name}: informe entre ${min} e ${max} caracteres.`);

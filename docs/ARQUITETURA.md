@@ -18,7 +18,12 @@ Rotas da interface usam hash (`#/gestor`, `#/relatar` etc.), permitindo recarreg
 | GET | `/api/occurrences?mine=1` | Relatos do perfil compartilhado `cidadao-demo` |
 | POST | `/api/occurrences` | Valida, gera protocolo, salva e registra triagem |
 | GET | `/api/occurrences/:id` | Dados completos, foto e histórico |
-| PATCH | `/api/occurrences/:id` | Avança a etapa com equipe e justificativa |
+| PATCH | `/api/occurrences/:id` | Compatibilidade para avanço gerencial permitido |
+| GET/POST/PATCH | `/api/collaborators` | Consulta, cadastro e ativação de colaboradores (gestor) |
+| POST | `/api/occurrences/:id/assign` | Atribui equipe e colaborador(es) ativos (gestor) |
+| GET | `/api/collaborator/tasks` | Lista tarefas atribuídas ao colaborador atual |
+| POST | `/api/occurrences/:id/start`, `/progress`, `/conclude` | Execução, andamento e conclusão (colaborador atribuído) |
+| POST | `/api/occurrences/:id/validate` | Aprova ou devolve conclusão (gestor) |
 
 O cadastro exige `title`, `category`, `region`, `address`, `neighborhood` e `description`. `photo` aceita `null` ou uma data URL JPG/PNG de até 2 MB. A atualização exige `status`, `team` e `note`.
 
@@ -29,7 +34,10 @@ Validação também ocorre no servidor: limites dos textos, enums, conteúdo ini
 | Tabela | Campos principais |
 |---|---|
 | `occurrences` | ID, protocolo único, perfil demo, título, categoria, região, endereço, bairro, descrição, foto, prioridade, status, equipe, regra da triagem, abertura e conclusão |
-| `history` | ID sequencial, ocorrência (FK), título do evento, justificativa e data |
+| `collaborators` | Dados do colaborador, equipe, função e situação ativo/inativo |
+| `assignments` | Vínculo entre ocorrência e responsáveis, com gestor e data da atribuição |
+| `execution_updates` | Andamentos, conclusão, progresso e evidência opcional |
+| `history` | Evento imutável, transições, responsável, perfil, observação e referência de anexo |
 
 Uma ocorrência tem vários eventos. As escritas do relato e histórico ocorrem em uma transação. Consultas usam parâmetros SQL. Índices ajudam a agrupar região/categoria e consultar o histórico. O banco habilita foreign keys e WAL.
 
@@ -43,6 +51,6 @@ Os indicadores usam os registros do período. Taxa de solução = resolvidos / t
 
 ## Limitações e evolução
 
-Todos compartilham os dois perfis de demonstração. Não há autenticação, notificações, geocodificação, SLA ou integrações externas. A API é destinada a execução local e não deve ser aberta à internet como produção.
+O ambiente usa identidades demonstrativas enviadas no cabeçalho `X-Demo-Actor`, que o servidor valida contra os papéis cadastrados para permitir testar autorização e segregação de tarefas. Não é autenticação de produção: deve ser substituído por sessão assinada/OIDC antes de exposição pública.
 
 Para evoluir: adicionar tabela de usuários, autenticação e controle por papel; substituir o perfil fixo pelo usuário autenticado; atribuir equipes por entidade; registrar coordenadas e integrar um mapa; definir prazos e evidência de conclusão; migrar para PostgreSQL se necessário; integrar IA após escolher e validar o objetivo do modelo.

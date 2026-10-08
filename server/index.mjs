@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createDatabase } from './database.mjs';
-import { ValidationError, categories, regions, teams, statuses } from './domain.mjs';
+import { ValidationError, AuthorizationError, categories, regions, teams, statuses } from './domain.mjs';
 
 const root = resolve(fileURLToPath(new URL('../dist/', import.meta.url)));
 const mime = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.png': 'image/png' };
@@ -28,11 +28,12 @@ export function createApp(store) {
     };
     try {
       const url = new URL(req.url, 'http://localhost');
+      const actor = () => store.actor(String(req.headers['x-demo-actor'] || ''));
       if (url.pathname.startsWith('/api/')) {
         if (['POST', 'PATCH'].includes(req.method)) {
           if (!String(req.headers['content-type']).startsWith('application/json')) return json(415, { error: 'Envie application/json.' });
           const origin = req.headers.origin;
-          if (origin && new URL(origin).host !== req.headers.host) return json(403, { error: 'Origem não permitida.' });
+          if (origin && !['127.0.0.1', 'localhost', '::1'].includes(new URL(origin).hostname)) return json(403, { error: 'Origem não permitida.' });
         }
         if (req.method === 'GET' && url.pathname === '/api/health') return json(200, { ok: true, mode: 'demo' });
         if (req.method === 'GET' && url.pathname === '/api/options') return json(200, { categories, regions, teams, statuses });
@@ -47,8 +48,21 @@ export function createApp(store) {
         if (match && req.method === 'PATCH') {
           const input = await readBody(req);
           if (!input || typeof input !== 'object' || Array.isArray(input)) throw new ValidationError('Atualização inválida.');
-          const record = store.update(match[1], input);
+          const record = store.update(match[1], input, actor());
           return json(record ? 200 : 404, record ?? { error: 'Ocorrência não encontrada.' });
+        }
+        if (req.method === 'GET' && url.pathname === '/api/collaborators') return json(200, store.listCollaborators(actor()));
+        if (req.method === 'POST' && url.pathname === '/api/collaborators') {
+          const input = await readBody(req); return json(201, store.createCollaborator(input, actor()));
+        }
+        const collaboratorMatch = url.pathname.match(/^\/api\/collaborators\/([a-zA-Z0-9-]+)$/);
+        if (collaboratorMatch && req.method === 'PATCH') { const input = await readBody(req); const person = store.setCollaborator(collaboratorMatch[1], input, actor()); return json(person ? 200 : 404, person ?? { error:'Colaborador não encontrado.' }); }
+        if (req.method === 'GET' && url.pathname === '/api/collaborator/tasks') return json(200, store.collaboratorTasks(actor()));
+        const action = url.pathname.match(/^\/api\/occurrences\/([a-zA-Z0-9-]+)\/(assign|start|progress|conclude|validate)$/);
+        if (action && req.method === 'POST') {
+          const input = await readBody(req); const [id, name] = [action[1], action[2]]; const user = actor();
+          const record = name === 'assign' ? store.assign(id,input,user) : name === 'start' ? store.start(id,user) : name === 'progress' ? store.progress(id,input,user) : name === 'conclude' ? store.conclude(id,input,user) : store.validate(id,input,user);
+          return json(record ? 200 : 404, record ?? { error:'Ocorrência não encontrada.' });
         }
         return json(404, { error: 'Rota não encontrada.' });
       }
@@ -63,6 +77,7 @@ export function createApp(store) {
         res.end(data);
       } catch { json(404, { error: 'Arquivo não encontrado. Execute npm run build antes de npm start.' }); }
     } catch (e) {
+      if (e instanceof AuthorizationError) return json(403, { error: e.message });
       if (e instanceof ValidationError) return json(400, { error: e.message });
       console.error(e);
       json(500, { error: 'Não foi possível concluir a operação.' });
