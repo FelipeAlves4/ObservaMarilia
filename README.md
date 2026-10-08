@@ -38,6 +38,9 @@ Abra **http://127.0.0.1:3001**. Neste modo, a API serve também a interface comp
 - Painel do gestor com indicadores calculados a partir do banco
 - Fila de ocorrências com busca e filtros por categoria, região, prioridade e status
 - Encaminhamento para equipe com justificativa e avanço sequencial de etapa
+- Portal mobile-first do colaborador (`#/colaborador`) com início, andamento, evidência opcional e envio de conclusão
+- Cadastro, ativação e desativação de colaboradores no painel do gestor
+- Atribuição individual por equipe, fila de validação e devolução para correção
 - Kanban operacional com cartões que abrem o atendimento
 - Mapa esquemático com agrupamento por região, zoom, seleção e camada de calor ilustrativa
 - Alertas de concentração por regras explicáveis
@@ -47,9 +50,9 @@ Abra **http://127.0.0.1:3001**. Neste modo, a API serve também a interface comp
 
 ## Fluxo de atendimento
 
-`Nova → Em análise → Programada → Em execução → Resolvida`
+`Nova → Em análise → Programada → Em execução → Aguardando validação → Resolvida`
 
-O relato enviado pelo cidadão já entra em **Em análise**, após a triagem demonstrativa. A API exige uma equipe válida e uma justificativa para avançar. Cada alteração gera um novo evento no histórico. Não é possível pular etapas ou alterar um atendimento concluído nesta versão.
+O relato enviado pelo cidadão já entra em **Em análise**, após a triagem demonstrativa. O gestor atribui equipe e colaborador ativo; somente a pessoa atribuída pode iniciar, registrar andamento e enviar conclusão. A conclusão aguarda aprovação do gestor, que pode resolvê-la ou devolvê-la para correção. Cada alteração gera um evento imutável no histórico.
 
 ## Demonstração para a P2
 

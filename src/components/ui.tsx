@@ -24,7 +24,7 @@ export function Panel({ title, subtitle, children, className = '', action }: { t
   </section>;
 }
 export function Badge({ children, tone }: { children: ReactNode; tone?: string }) {
-  const color = tone || (children === 'Alta' || children === 'Crítico' ? 'red' : children === 'Média' || children === 'Programada' || children === 'Em execução' || children === 'Atenção' ? 'amber' : children === 'Resolvida' || children === 'Baixa' ? 'green' : 'blue');
+  const color = tone || (children === 'Alta' || children === 'Crítico' ? 'red' : children === 'Média' || children === 'Programada' || children === 'Em execução' || children === 'Atenção' ? 'amber' : children === 'Aguardando validação' ? 'blue' : children === 'Resolvida' || children === 'Baixa' ? 'green' : 'blue');
   return <span className={'badge badge-' + color}>{children}</span>;
 }
 export interface StatItem { value: string | number; label: string; note?: string; color?: string }

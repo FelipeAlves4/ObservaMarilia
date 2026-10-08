@@ -1,12 +1,13 @@
 import { useState, type ReactNode } from 'react';
 import { Brand, asset } from './ui';
-const nav = [['/gestor','Visão geral'],['/gestor/mapa','Mapa da cidade'],['/gestor/ocorrencias','Ocorrências'],['/gestor/alertas','Alertas da IA'],['/gestor/equipes','Equipes'],['/gestor/indicadores','Indicadores'],['/gestor/configuracoes','Configurações']];
+const nav = [['/gestor','Visão geral'],['/gestor/mapa','Mapa da cidade'],['/gestor/ocorrencias','Ocorrências'],['/gestor/alertas','Alertas da IA'],['/gestor/equipes','Equipes'],['/gestor/colaboradores','Colaboradores'],['/gestor/indicadores','Indicadores'],['/gestor/configuracoes','Configurações']];
 const headings: Record<string,[string,string]> = {
   '/gestor':['Visão geral da cidade','Ocorrências, regiões críticas e recomendações em tempo real.'],
   '/gestor/mapa':['Mapa da cidade','Explore ocorrências, hotspots e prioridades em todo o município.'],
   '/gestor/ocorrencias':['Ocorrências','Organize, encaminhe e acompanhe os chamados da população.'],
   '/gestor/alertas':['Central de Alertas da IA','Padrões e recomendações. Análise por regras nesta demonstração.'],
   '/gestor/equipes':['Equipes e operações','Distribua, acompanhe e conclua os chamados priorizados pela cidade.'],
+  '/gestor/colaboradores':['Colaboradores','Cadastre responsáveis, acompanhe a carga e preserve a operação por equipe.'],
   '/gestor/indicadores':['Indicadores da cidade','Desempenho urbano, eficiência operacional e transparência em um só lugar.'],
   '/gestor/configuracoes':['Configurações','Informações do projeto e da demonstração acadêmica.'],
 };

@@ -15,7 +15,11 @@ export function DataProvider({ children }: { children: ReactNode }) {
     } catch (e) { setError(e instanceof Error ? e.message : 'Erro de conexão.'); }
     finally { setLoading(false); }
   }, []);
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    void refresh();
+    const interval = window.setInterval(() => { void refresh(); }, 10_000);
+    return () => window.clearInterval(interval);
+  }, [refresh]);
   return <DataContext.Provider value={{ records, mine, loading, error, refresh }}>{children}</DataContext.Provider>;
 }
 export function useData() {
