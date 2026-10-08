@@ -495,3 +495,28 @@ td .btn { font-size:10px; }
   .account-content .page-heading h1 { font-size:24px; }
   .account-content .page-heading .btn { min-width:0; min-height:38px; }
 }
+
+
+/* V2.1 — responsive safeguards for all three demonstration profiles */
+@media (max-width: 900px) {
+  .manager-main, .manager-content, .public-content, .account-content, .collaborator-main { min-width:0; }
+  .manager-header, .public-header { gap:12px; }
+  .teams-grid, .detail-three, .detail-two, .presentation-grid, .scope-columns { grid-template-columns:minmax(0,1fr); }
+  .kanban-panel, .kanban, .portal-grid, .collaborator-admin-grid { min-width:0; }
+  .kanban { overflow-x:auto; overscroll-behavior-inline:contain; -webkit-overflow-scrolling:touch; }
+  .kanban-column { min-width:230px; }
+}
+@media (max-width: 600px) {
+  .manager-content, .public-content, .account-content, .collaborator-main { padding-left:16px; padding-right:16px; }
+  .manager-header { flex-wrap:wrap; }
+  .manager-header > div { min-width:0; }
+  .manager-header h1 { overflow-wrap:anywhere; }
+  .public-header { flex-wrap:wrap; }
+  .public-header .header-actions { flex-wrap:wrap; }
+  .presentation-step, .worker-task, .kanban-card, .confirmation-dialog { max-width:100%; overflow-wrap:anywhere; }
+  .portal-list-heading, .task-filters { min-width:0; }
+  .task-filters input, .task-filters select, .execution-form input, .execution-form textarea { width:100%; max-width:100%; min-width:0; }
+  .collaborator-row { min-width:0; }
+  .collaborator-row > div { min-width:0; overflow-wrap:anywhere; }
+  .architecture-flow { flex-wrap:wrap; }
+}
