@@ -99,3 +99,31 @@ test('Rejeita alteração por colaborador não atribuído e atribuição de inat
   const assignment=await send(path+'/assign','POST',{team:'Equipe Luz 03',collaboratorIds:[maria.id],note:'Encaminhamento para iluminação.'},{'X-Demo-Actor':'gestor-demo'});
   assert.equal(assignment.status,400);
 });
+
+test('Colaboradores recém-criados aparecem no acesso demo e inativos não podem atuar', async () => {
+  const managerHeaders={'X-Demo-Actor':'gestor-demo'};
+  const created=await send('/api/collaborators','POST',{
+    name:'Pessoa Teste Colaboradora',email:'pessoa.teste@demo.local',phone:'(14) 99999-9876',
+    employeeCode:'MAT-NOVA-2026',team:'Equipe Norte 02',role:'Agente de campo'
+  },managerHeaders);
+  assert.equal(created.status,201);
+  const id=created.data.id;
+  const available=await send('/api/demo/collaborators','GET');
+  assert.equal(available.status,200);
+  assert.ok(available.data.some(person=>person.id===id));
+  assert.ok(!Object.hasOwn(available.data.find(person=>person.id===id),'email'));
+  assert.equal((await send('/api/collaborator/tasks','GET',undefined,{'X-Demo-Actor':id})).status,200);
+
+  const reported=await send('/api/occurrences','POST',report);
+  const assigned=await send('/api/occurrences/'+reported.data.id+'/assign','POST',{
+    team:'Equipe Norte 02',collaboratorIds:[id],note:'Atribuição para testar o novo perfil.'
+  },managerHeaders);
+  assert.equal(assigned.status,200);
+  const tasks=await send('/api/collaborator/tasks','GET',undefined,{'X-Demo-Actor':id});
+  assert.ok(tasks.data.some(task=>task.id===reported.data.id));
+
+  assert.equal((await send('/api/collaborators/'+id,'PATCH',{active:false},managerHeaders)).status,200);
+  const inactive=await send('/api/demo/collaborators','GET');
+  assert.ok(!inactive.data.some(person=>person.id===id));
+  assert.equal((await send('/api/collaborator/tasks','GET',undefined,{'X-Demo-Actor':id})).status,403);
+});

@@ -38,8 +38,8 @@ Abra **http://127.0.0.1:3001**. Neste modo, a API serve também a interface comp
 - Painel do gestor com indicadores calculados a partir do banco
 - Fila de ocorrências com busca e filtros por categoria, região, prioridade e status
 - Encaminhamento para equipe com justificativa e avanço sequencial de etapa
-- Portal mobile-first do colaborador (`#/colaborador`) com início, andamento, evidência opcional e envio de conclusão
-- Cadastro, ativação e desativação de colaboradores no painel do gestor
+- Portal mobile-first do colaborador (`#/colaborador`) com escolha dinâmica de qualquer perfil ativo, início, andamento, evidência opcional e envio de conclusão
+- Cadastro, ativação e desativação de colaboradores no painel do gestor, com acesso direto ao perfil recém-criado
 - Atribuição individual por equipe, fila de validação e devolução para correção
 - Kanban operacional com cartões que abrem o atendimento
 - Mapa esquemático com agrupamento por região, zoom, seleção e camada de calor ilustrativa
@@ -47,6 +47,13 @@ Abra **http://127.0.0.1:3001**. Neste modo, a API serve também a interface comp
 - Indicadores públicos, distribuição por categoria, desempenho por região e registros por dia
 - Exportação CSV dos registros filtrados
 - Layout responsivo, fontes e assets oficiais do Figma servidos localmente
+
+## Testar o acesso do colaborador
+
+1. Entre em `#/gestor/colaboradores` e cadastre um colaborador fictício (nome, e-mail, telefone, matrícula, equipe e função).
+2. Clique em **Acessar o perfil agora** ou abra `#/acesso` → **Colaborador**. A tela oferece todos os colaboradores ativos, inclusive os recém-cadastrados.
+3. Depois que o gestor atribuir uma ocorrência ao novo colaborador, ela aparece em **Minhas atividades**. Perfis desativados não podem entrar ou executar tarefas.
+4. **Atenção:** a seleção de perfil é apenas demonstrativa e **não é autenticação com senha**. Qualquer pessoa com acesso ao ambiente consegue escolher um perfil. Não exponha a API publicamente nem use dados reais.
 
 ## Fluxo de atendimento
 

@@ -51,6 +51,7 @@ export function createApp(store) {
           const record = store.update(match[1], input, actor());
           return json(record ? 200 : 404, record ?? { error: 'Ocorrência não encontrada.' });
         }
+        if (req.method === 'GET' && url.pathname === '/api/demo/collaborators') return json(200, store.demoCollaboratorsList());
         if (req.method === 'GET' && url.pathname === '/api/collaborators') return json(200, store.listCollaborators(actor()));
         if (req.method === 'POST' && url.pathname === '/api/collaborators') {
           const input = await readBody(req); return json(201, store.createCollaborator(input, actor()));
