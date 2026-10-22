@@ -11,6 +11,7 @@ export interface Collaborator {
   id: string; name: string; email: string; phone: string; employeeCode: string; team: string;
   role: string; active: boolean; createdAt: string; assignedCount?: number; completedCount?: number; overdueCount?: number;
 }
+export type DemoCollaborator = Pick<Collaborator, 'id' | 'name' | 'team' | 'role'>;
 export interface ExecutionUpdate { id: number; kind: 'andamento' | 'conclusao'; note: string; progress: number | null; photo: string | null; createdAt: string; collaboratorName: string }
 export interface Occurrence {
   id: string; protocol: string; title: string; category: Category; region: Region;

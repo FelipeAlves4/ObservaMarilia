@@ -1,5 +1,5 @@
-import type { Collaborator, Occurrence, ReportInput, Status } from './types';
-export type Actor = 'gestor-demo' | 'colab-joao' | 'colab-maria' | 'colab-carlos';
+import type { Collaborator, DemoCollaborator, Occurrence, ReportInput, Status } from './types';
+export type Actor = string; // Identidade demonstrativa: não é login autenticado.
 async function request<T>(path: string, init?: RequestInit, actor?: Actor): Promise<T> {
   const response = await fetch('/api' + path, { ...init, headers: { 'Content-Type': 'application/json', ...(actor ? { 'X-Demo-Actor': actor } : {}), ...init?.headers } });
   let data;
@@ -13,6 +13,7 @@ export const api = {
   detail: (id: string) => request<Occurrence>('/occurrences/' + encodeURIComponent(id)),
   create: (data: ReportInput) => request<Occurrence>('/occurrences', { method: 'POST', body: JSON.stringify(data) }),
   update: (id: string, data: { status: Status; team: string; note: string }) => request<Occurrence>('/occurrences/' + encodeURIComponent(id), { method: 'PATCH', body: JSON.stringify(data) }, 'gestor-demo'),
+  demoCollaborators: () => request<DemoCollaborator[]>('/demo/collaborators'),
   collaborators: () => request<Collaborator[]>('/collaborators', undefined, 'gestor-demo'),
   createCollaborator: (data: Omit<Collaborator, 'id' | 'active' | 'createdAt' | 'assignedCount' | 'completedCount' | 'overdueCount'>) => request<Collaborator>('/collaborators', { method:'POST', body:JSON.stringify(data) }, 'gestor-demo'),
   setCollaborator: (id: string, data: { active?: boolean; team?: string }) => request<Collaborator>('/collaborators/'+encodeURIComponent(id), { method:'PATCH', body:JSON.stringify(data) }, 'gestor-demo'),

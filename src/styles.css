@@ -508,3 +508,29 @@ td .btn { font-size:10px; }
   .account-content .page-heading .btn { min-width:0; min-height:38px; }
 }
 
+
+/* Entrada demonstrativa: novos colaboradores aparecem automaticamente no seletor. */
+.access-page { max-width:1020px; }
+.access-options { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.collaborator-access { max-width:620px; padding-top:55px; }
+.collaborator-access-intro { text-align:center; margin-bottom:24px; }
+.collaborator-access-intro h1 { font-size:30px; margin:10px 0; }
+.collaborator-access-intro p { color:#52637b; line-height:1.6; }
+.collaborator-access-icon { display:inline-grid; place-items:center; width:72px; height:72px; border-radius:22px; font-size:34px; background:#dcf6f0; }
+.collaborator-back,.collaborator-profile a { color:#d5f4ff; text-decoration:underline; text-underline-offset:4px; font-size:13px; }
+.collaborator-profile { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.collaborator-profile strong { font-size:14px; }
+.collaborator-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.collaborator-row { grid-template-columns:minmax(0,1fr) auto auto minmax(155px,auto); }
+.collaborator-admin-grid { grid-template-columns:minmax(0,.9fr) minmax(0,1.55fr); }
+@media(max-width:920px) {
+  .access-options { grid-template-columns:1fr; }
+  .collaborator-row { grid-template-columns:1fr 1fr; }
+  .collaborator-admin-grid { grid-template-columns:1fr; }
+}
+@media(max-width:600px) {
+  .collaborator-profile { justify-content:flex-end; text-align:right; }
+  .collaborator-access { padding-top:30px; }
+  .collaborator-row { grid-template-columns:1fr; }
+  .collaborator-actions { width:100%; }
+}

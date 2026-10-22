@@ -26,7 +26,7 @@ export default function App() {
   if(route === '/acesso') content=<Information access />;
   else if(route === '/') content=<Home />;
   else if(route === '/apresentacao') content=<Presentation />;
-  else if(route === '/colaborador') return <CollaboratorPortal />;
+  else if(route === '/colaborador') return <CollaboratorPortal key={fullRoute} />;
   else if(route === '/gestor') content=<Dashboard records={periodRecords} />;
   else if(route === '/mapa' || route === '/gestor/mapa') content=<MapPage key={fullRoute} records={manager ? periodRecords : records} manager={manager} initialRegion={initialRegion} />;
   else if(route === '/meus-relatos') content=<Occurrences records={mine} mine />;
