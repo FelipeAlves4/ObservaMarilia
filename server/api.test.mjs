@@ -127,3 +127,25 @@ test('Colaboradores recém-criados aparecem no acesso demo e inativos não podem
   assert.ok(!inactive.data.some(person=>person.id===id));
   assert.equal((await send('/api/collaborator/tasks','GET',undefined,{'X-Demo-Actor':id})).status,403);
 });
+
+test('Coordenadas são salvas, validadas e não inventadas em relatos antigos',async()=>{
+  const saved=await send('/api/occurrences','POST',{...report,latitude:-22.22,longitude:-49.95});
+  assert.equal(saved.status,201);
+  assert.equal(saved.data.latitude,-22.22);assert.equal(saved.data.longitude,-49.95);
+  const fetched=await send('/api/occurrences/'+saved.data.id,'GET');
+  assert.equal(fetched.data.latitude,-22.22);
+  const noLocation=await send('/api/occurrences','POST',report);
+  assert.equal(noLocation.data.latitude,null);assert.equal(noLocation.data.longitude,null);
+  for(const invalid of [{latitude:91,longitude:0},{latitude:0,longitude:181},{latitude:0},{latitude:'-22',longitude:-49}]) {
+    assert.equal((await send('/api/occurrences','POST',{...report,...invalid})).status,400);
+  }
+});
+test('Coordenadas continuam disponíveis depois de reabrir o SQLite',()=>{
+ const folder=mkdtempSync(join(tmpdir(),'osm-')),path=join(folder,'test.sqlite');
+ let database=createDatabase(path,false);
+ try{
+   const record=database.create({...report,latitude:-22.22,longitude:-49.95});
+   database.close();database=createDatabase(path,false);
+   assert.equal(database.get(record.id).latitude,-22.22);
+ }finally{database.close();rmSync(folder,{recursive:true,force:true});}
+});

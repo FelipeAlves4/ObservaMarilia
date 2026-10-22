@@ -38,6 +38,8 @@ export function createDatabase(path = 'data/observamarilia.sqlite', seed = true)
   function addColumn(table, definition) { if (!columns(table).has(definition.split(/\s+/)[0])) db.exec(`ALTER TABLE ${table} ADD COLUMN ${definition}`); }
   function migrate() {
     addColumn('occurrences', 'due_at TEXT');
+    addColumn('occurrences', 'latitude REAL');
+    addColumn('occurrences', 'longitude REAL');
     for (const column of ['action TEXT', 'from_status TEXT', 'to_status TEXT', 'actor_id TEXT', 'actor_name TEXT', 'actor_role TEXT', 'attachment_ref TEXT']) addColumn('history', column);
   }
   function transaction(callback) { db.exec('BEGIN IMMEDIATE'); try { const value = callback(); db.exec('COMMIT'); return value; } catch (error) { db.exec('ROLLBACK'); throw error; } }
@@ -51,7 +53,7 @@ export function createDatabase(path = 'data/observamarilia.sqlite', seed = true)
   function get(id, withPhoto = true) {
     const row = db.prepare('SELECT * FROM occurrences WHERE id=?').get(id); if (!row) return null;
     const history = db.prepare('SELECT title,note,created_at AS createdAt,action,from_status AS fromStatus,to_status AS toStatus,actor_name AS actorName,actor_role AS actorRole,attachment_ref AS attachmentRef FROM history WHERE occurrence_id=? ORDER BY id').all(id);
-    return { id:row.id, protocol:row.protocol, title:row.title, category:row.category, region:row.region, address:row.address, neighborhood:row.neighborhood, description:row.description, photo:withPhoto ? row.photo : undefined, hasPhoto:Boolean(row.photo), priority:row.priority, status:row.status, team:row.team, reason:row.reason, createdAt:row.created_at, resolvedAt:row.resolved_at, dueAt:row.due_at, assignedAt:db.prepare('SELECT min(assigned_at) AS at FROM assignments WHERE occurrence_id=?').get(id).at, assignees:assignees(id), executionUpdates:executionUpdates(id,withPhoto), history };
+    return { id:row.id, protocol:row.protocol, title:row.title, category:row.category, region:row.region, address:row.address, neighborhood:row.neighborhood, description:row.description, latitude:row.latitude, longitude:row.longitude, photo:withPhoto ? row.photo : undefined, hasPhoto:Boolean(row.photo), priority:row.priority, status:row.status, team:row.team, reason:row.reason, createdAt:row.created_at, resolvedAt:row.resolved_at, dueAt:row.due_at, assignedAt:db.prepare('SELECT min(assigned_at) AS at FROM assignments WHERE occurrence_id=?').get(id).at, assignees:assignees(id), executionUpdates:executionUpdates(id,withPhoto), history };
   }
   function list(owner) { const rows = owner ? db.prepare('SELECT id FROM occurrences WHERE owner=? ORDER BY created_at DESC').all(owner) : db.prepare('SELECT id FROM occurrences ORDER BY created_at DESC').all(); return rows.map(row => get(row.id, false)); }
   function actor(actorId) {
@@ -72,7 +74,7 @@ export function createDatabase(path = 'data/observamarilia.sqlite', seed = true)
   function create(input, owner = 'cidadao-demo') {
     const data = validateReport(input), analysis = triage(data.category,data.description);
     return transaction(() => { const now=new Date().toISOString(), id=randomUUID(), count=Number(db.prepare('SELECT count(*) AS n FROM occurrences').get().n)+1, protocol=`OCO-${new Date().getUTCFullYear()}-${String(count).padStart(4,'0')}`;
-      db.prepare('INSERT INTO occurrences (id,protocol,owner,title,category,region,address,neighborhood,description,photo,priority,status,team,reason,created_at,resolved_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(id,protocol,owner,data.title,data.category,data.region,data.address,data.neighborhood,data.description,data.photo,analysis.priority,'Em análise',null,analysis.reason,now,null);
+      db.prepare('INSERT INTO occurrences (id,protocol,owner,title,category,region,address,neighborhood,description,photo,priority,status,team,reason,created_at,resolved_at,latitude,longitude) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)').run(id,protocol,owner,data.title,data.category,data.region,data.address,data.neighborhood,data.description,data.photo,analysis.priority,'Em análise',null,analysis.reason,now,null,data.latitude,data.longitude);
       event(id,'Ocorrência criada','Relato registrado pelo cidadão.',{id:owner,name:'Cidadão demonstrativo',role:'cidadao'},{action:'create',toStatus:'Em análise',time:now}); event(id,'Triagem demonstrativa',analysis.reason,manager,{action:'triage',toStatus:'Em análise',time:now}); return get(id);
     });
   }

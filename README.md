@@ -42,11 +42,21 @@ Abra **http://127.0.0.1:3001**. Neste modo, a API serve também a interface comp
 - Cadastro, ativação e desativação de colaboradores no painel do gestor, com acesso direto ao perfil recém-criado
 - Atribuição individual por equipe, fila de validação e devolução para correção
 - Kanban operacional com cartões que abrem o atendimento
-- Mapa esquemático com agrupamento por região, zoom, seleção e camada de calor ilustrativa
+- Mapa real de Marília usando OpenStreetMap + Leaflet; somente ocorrências com coordenadas aparecem como marcadores
+- Busca de endereço Nominatim sob demanda, pin manual e persistência de latitude/longitude no SQLite local
 - Alertas de concentração por regras explicáveis
 - Indicadores públicos, distribuição por categoria, desempenho por região e registros por dia
 - Exportação CSV dos registros filtrados
 - Layout responsivo, fontes e assets oficiais do Figma servidos localmente
+
+## Integração OpenStreetMap
+
+- As telas públicas e gerenciais utilizam tiles reais do OpenStreetMap, com Leaflet 1.9.4 (CDN com SRI). Clique/arraste para explorar, use os controles para zoom. A cartografia funciona no site da Vercel independentemente da API de ocorrências.
+- Em `#/relatar`, informe endereço e bairro, clique em **Buscar endereço no mapa** ou marque diretamente com um clique; a posição é opcional. No ambiente com API Node ativa, novas ocorrências mantêm latitude e longitude no SQLite.
+- Os 24 registros fictícios anteriores não têm posição exata, portanto **não são colocados em locais inventados**.
+- Opcionalmente defina `VITE_OSM_TILE_URL` e `VITE_NOMINATIM_URL` no build para trocar serviços.
+- Respeite as políticas oficiais: [tiles](https://operations.osmfoundation.org/policies/tiles/) e [Nominatim](https://operations.osmfoundation.org/policies/nominatim/). Nominatim proíbe autocomplete, impõe 1 consulta/s para **toda a aplicação**. Esta demonstração limita buscas no navegador, mas produção multiusuário exige um proxy/cache e controle global de taxa.
+- **A API da Vercel ainda não está publicada**, então relatos e colaboradores só persistem com o backend local; a integração Supabase permanece pendente. Não usar dados pessoais reais no protótipo.
 
 ## Testar o acesso do colaborador
 
@@ -101,7 +111,7 @@ Executa TypeScript, build da interface e testes da API. Os testes usam bases iso
 
 Este é um **protótipo acadêmico**, sem vínculo com a Prefeitura de Marília. Os perfis cidadão e gestor são acessos demonstrativos **sem autenticação nem isolamento de usuários**; não devem receber dados pessoais ou reais.
 
-O painel com o título do Figma “Alertas da IA” usa **regras**, sem modelo de inteligência artificial. Não exibe precisão ou confiança fictícias. O mapa usa posições ilustrativas por região, sem coordenadas reais, geolocalização, cálculo de distância ou serviços cartográficos. Os indicadores são calculados pelo banco da demonstração, sem alegar representar dados oficiais da cidade.
+O painel com o título do Figma “Alertas da IA” usa **regras**, sem modelo de inteligência artificial. Não exibe precisão ou confiança fictícias. O mapa usa tiles reais do OpenStreetMap, mas registros antigos não têm coordenadas e não aparecem como marcadores. A versão não calcula rotas ou distâncias. Os indicadores são calculados pelo banco da demonstração, sem alegar representar dados oficiais da cidade.
 
 A API escuta apenas em localhost por padrão. Não exponha esta versão como um sistema real. Para uma demonstração em rede isolada, as variáveis `HOST=0.0.0.0` e `ALLOW_PUBLIC_DEMO=true` liberam a interface de rede explicitamente, ainda sem autenticação. O SQLite precisa de disco persistente; hospedar somente a pasta `dist` não disponibiliza a API.
 
