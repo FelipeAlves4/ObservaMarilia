@@ -16,13 +16,13 @@ export interface ExecutionUpdate { id: number; kind: 'andamento' | 'conclusao'; 
 export interface Occurrence {
   id: string; protocol: string; title: string; category: Category; region: Region;
   address: string; neighborhood: string; description: string; priority: Priority;
-  status: Status; team: string | null; reason: string; createdAt: string;
+  status: Status; team: string | null; reason: string; createdAt: string; latitude?: number|null; longitude?: number|null;
   resolvedAt: string | null; dueAt?: string | null; assignedAt?: string | null; assignees?: Pick<Collaborator, 'id' | 'name' | 'team' | 'role'>[];
   executionUpdates?: ExecutionUpdate[]; photo?: string | null; hasPhoto?: boolean; history: HistoryEvent[];
 }
 export interface ReportInput {
   title: string; category: Category; region: Region; address: string;
-  neighborhood: string; description: string; photo: string | null;
+  neighborhood: string; description: string; photo: string | null; latitude?: number|null; longitude?: number|null;
 }
 export const nextStatus: Partial<Record<Status, Status>> = { 'Nova': 'Em análise', 'Em análise': 'Programada', 'Programada': 'Em execução', 'Em execução': 'Aguardando validação', 'Aguardando validação': 'Resolvida' };
 export const categoryColors: Record<Category, string> = { 'Pavimentação': '#2563eb', 'Iluminação': '#7c3aed', 'Lixo e limpeza': '#10b981', 'Árvores': '#f59e0b', 'Outros': '#94a3b8' };

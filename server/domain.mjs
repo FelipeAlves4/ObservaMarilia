@@ -46,5 +46,10 @@ export function validateReport(input) {
     if (!(input.photo.startsWith('data:image/png') ? png : jpeg)) throw new ValidationError('O conteúdo da foto não corresponde ao formato informado.');
     photo = input.photo;
   }
-  return { title, address, neighborhood, description, category: input.category, region: input.region, photo };
+  const latitude=input.latitude,longitude=input.longitude;
+  if((latitude==null)!==(longitude==null))throw new ValidationError('Latitude e longitude devem ser informadas juntas.');
+  if(latitude!=null && (typeof latitude!=='number'||!Number.isFinite(latitude)||latitude < -90||latitude > 90
+    ||typeof longitude!=='number'||!Number.isFinite(longitude)||longitude < -180||longitude > 180))
+    throw new ValidationError('Coordenadas inválidas.');
+  return {title,address,neighborhood,description,category:input.category,region:input.region,photo,latitude:latitude??null,longitude:longitude??null};
 }
