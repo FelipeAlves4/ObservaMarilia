@@ -1,118 +1,53 @@
 # ObservaMarília
 
-Protótipo funcional de uma plataforma de participação cidadã e gestão de ocorrências urbanas, criado para apresentação acadêmica da P2.
+Plataforma de participação cidadã e gestão de ocorrências urbanas. A aplicação React usa Supabase para autenticação, dados, regras de acesso, imagens privadas e funções operacionais.
 
-Interface baseada nas telas do [projeto no Figma](https://www.figma.com/design/evk6tyBKyRvdws8SbaHMxh/Cidade-Inteligente---Fabrica-de-Projetos-Ageis?node-id=0-1).
+## Principais fluxos
 
-## Executar no computador
+- Cidadãos autenticados criam e acompanham somente os próprios relatos.
+- Gestores fazem triagem, encaminham ocorrências e validam conclusões.
+- Colaboradores convidados recebem tarefas de sua equipe, iniciam, atualizam e concluem atendimentos.
+- O histórico é imutável e o fluxo é: `Nova → Em análise → Programada → Em execução → Aguardando validação → Resolvida`.
+- Imagens ficam no bucket privado `occurrence-media`; o cliente usa URL assinada temporária.
+- A busca de endereço passa pela Edge Function `geocode-marilia`, que usa cache e limite global para o Nominatim.
 
-Instale **Node.js 24 ou superior**. O banco usa o módulo SQLite incluído no Node 24. Não é necessário instalar um servidor de banco.
+## Rodar localmente
+
+Requer Node.js 24+.
 
 ```bash
 git clone https://github.com/FelipeAlves4/ObservaMarilia.git
 cd ObservaMarilia
-git checkout feat/mvp-p2
 npm ci
+Copy-Item .env.example .env
 npm run dev
 ```
 
-Abra **http://127.0.0.1:5173**. A API inicia junto, na porta 3001. Para encerrar, use `Ctrl+C`.
-
-Depois que o pull request for integrado, também será possível executar pela branch `main`.
-
-Para executar a versão compilada:
+Abra `http://127.0.0.1:5173`. Preencha `VITE_SUPABASE_PUBLISHABLE_KEY` em `.env` com a chave pública do projeto Supabase. Nunca use a service-role key no frontend.
 
 ```bash
 npm run build
-npm start
+npm test
 ```
 
-Abra **http://127.0.0.1:3001**. Neste modo, a API serve também a interface compilada.
+Os testes atuais em `server/` são uma suíte de regressão do backend SQLite legado. O navegador de produção não o chama; use `npm run dev:legacy` somente para comparações locais temporárias.
 
-## O que já funciona
+## Supabase e produção
 
-- Página pública e área do cidadão
-- Cadastro de ocorrência com título, categoria, endereço, bairro, região, descrição e foto opcional (JPG/PNG até 2 MB)
-- Protocolo único, triagem demonstrativa e confirmação de envio
-- Meus relatos e detalhes com histórico de atendimento
-- Painel do gestor com indicadores calculados a partir do banco
-- Fila de ocorrências com busca e filtros por categoria, região, prioridade e status
-- Encaminhamento para equipe com justificativa e avanço sequencial de etapa
-- Portal mobile-first do colaborador (`#/colaborador`) com escolha dinâmica de qualquer perfil ativo, início, andamento, evidência opcional e envio de conclusão
-- Cadastro, ativação e desativação de colaboradores no painel do gestor, com acesso direto ao perfil recém-criado
-- Atribuição individual por equipe, fila de validação e devolução para correção
-- Kanban operacional com cartões que abrem o atendimento
-- Mapa real de Marília usando OpenStreetMap + Leaflet; somente ocorrências com coordenadas aparecem como marcadores
-- Busca de endereço Nominatim sob demanda, pin manual e persistência de latitude/longitude no SQLite local
-- Alertas de concentração por regras explicáveis
-- Indicadores públicos, distribuição por categoria, desempenho por região e registros por dia
-- Exportação CSV dos registros filtrados
-- Layout responsivo, fontes e assets oficiais do Figma servidos localmente
+O projeto está vinculado ao ref `obiwxknvjvicgyrowcfz`. As migrações em `supabase/migrations/` definem o banco, RLS, políticas do Storage e RPCs de fluxo. As funções Edge ficam em `supabase/functions/`.
 
-## Integração OpenStreetMap
+Consulte [docs/SUPABASE.md](docs/SUPABASE.md) para configurar Auth, primeiro gestor, variáveis da Vercel, redirects e operação segura.
 
-- As telas públicas e gerenciais utilizam tiles reais do OpenStreetMap, com Leaflet 1.9.4 (CDN com SRI). Clique/arraste para explorar, use os controles para zoom. A cartografia funciona no site da Vercel independentemente da API de ocorrências.
-- Em `#/relatar`, informe endereço e bairro, clique em **Buscar endereço no mapa** ou marque diretamente com um clique; a posição é opcional. No ambiente com API Node ativa, novas ocorrências mantêm latitude e longitude no SQLite.
-- Os 24 registros fictícios anteriores não têm posição exata, portanto **não são colocados em locais inventados**.
-- Opcionalmente defina `VITE_OSM_TILE_URL` e `VITE_NOMINATIM_URL` no build para trocar serviços.
-- Respeite as políticas oficiais: [tiles](https://operations.osmfoundation.org/policies/tiles/) e [Nominatim](https://operations.osmfoundation.org/policies/nominatim/). Nominatim proíbe autocomplete, impõe 1 consulta/s para **toda a aplicação**. Esta demonstração limita buscas no navegador, mas produção multiusuário exige um proxy/cache e controle global de taxa.
-- **A API da Vercel ainda não está publicada**, então relatos e colaboradores só persistem com o backend local; a integração Supabase permanece pendente. Não usar dados pessoais reais no protótipo.
-
-## Testar o acesso do colaborador
-
-1. Entre em `#/gestor/colaboradores` e cadastre um colaborador fictício (nome, e-mail, telefone, matrícula, equipe e função).
-2. Clique em **Acessar o perfil agora** ou abra `#/acesso` → **Colaborador**. A tela oferece todos os colaboradores ativos, inclusive os recém-cadastrados.
-3. Depois que o gestor atribuir uma ocorrência ao novo colaborador, ela aparece em **Minhas atividades**. Perfis desativados não podem entrar ou executar tarefas.
-4. **Atenção:** a seleção de perfil é apenas demonstrativa e **não é autenticação com senha**. Qualquer pessoa com acesso ao ambiente consegue escolher um perfil. Não exponha a API publicamente nem use dados reais.
-
-## Fluxo de atendimento
-
-`Nova → Em análise → Programada → Em execução → Aguardando validação → Resolvida`
-
-O relato enviado pelo cidadão já entra em **Em análise**, após a triagem demonstrativa. O gestor atribui equipe e colaborador ativo; somente a pessoa atribuída pode iniciar, registrar andamento e enviar conclusão. A conclusão aguarda aprovação do gestor, que pode resolvê-la ou devolvê-la para correção. Cada alteração gera um evento imutável no histórico.
-
-## Demonstração para a P2
-
-Abra `http://127.0.0.1:5173/#/apresentacao` para usar o modo de apresentação, com atalhos para o fluxo da banca, resumo técnico e delimitação clara do escopo.
-
-Consulte [docs/ROTEIRO_P2.md](docs/ROTEIRO_P2.md). O projeto inicia com **24 ocorrências fictícias**, sendo **3** do perfil compartilhado do cidadão demo.
-
-Os dados persistem em `data/observamarilia.sqlite`, ignorado pelo Git. Reiniciar a aplicação preserva relatos, fotos e histórico. Para reiniciar completamente uma demonstração, pare a aplicação e remova a pasta local `data`; a próxima execução recria a base inicial. Isso apaga somente os dados locais desse protótipo.
-
-## Stack e estrutura
-
-| Parte | Tecnologia |
-|---|---|
-| Interface | React 19, TypeScript, Vite e CSS |
-| API | Node.js 24, HTTP nativo |
-| Persistência | SQLite com `node:sqlite` |
-| Testes | `node:test`, integração HTTP e SQLite |
-| CI | GitHub Actions: compilação e testes |
+## Estrutura
 
 ```text
-src/components/   componentes, layouts, gráficos e mapa
-src/pages/        telas de cidadão e gestor
-src/api.ts        cliente HTTP
-src/data.tsx      carregamento e atualização dos dados
-server/           API, regras, persistência e testes
-public/assets/    exports oficiais do Figma
-docs/             roteiro, arquitetura e escopo
+src/                       frontend React e cliente Supabase
+supabase/migrations/        esquema, RLS e funções RPC versionadas
+supabase/functions/         Edge Functions de colaboradores e geocodificação
+server/                     backend SQLite legado, apenas desenvolvimento/teste
+docs/SUPABASE.md            guia operacional da integração
 ```
 
-## Verificação
+## Limites conhecidos
 
-```bash
-npm run check
-```
-
-Executa TypeScript, build da interface e testes da API. Os testes usam bases isoladas e não alteram a demonstração.
-
-## Limites desta primeira etapa
-
-Este é um **protótipo acadêmico**, sem vínculo com a Prefeitura de Marília. Os perfis cidadão e gestor são acessos demonstrativos **sem autenticação nem isolamento de usuários**; não devem receber dados pessoais ou reais.
-
-O painel com o título do Figma “Alertas da IA” usa **regras**, sem modelo de inteligência artificial. Não exibe precisão ou confiança fictícias. O mapa usa tiles reais do OpenStreetMap, mas registros antigos não têm coordenadas e não aparecem como marcadores. A versão não calcula rotas ou distâncias. Os indicadores são calculados pelo banco da demonstração, sem alegar representar dados oficiais da cidade.
-
-A API escuta apenas em localhost por padrão. Não exponha esta versão como um sistema real. Para uma demonstração em rede isolada, as variáveis `HOST=0.0.0.0` e `ALLOW_PUBLIC_DEMO=true` liberam a interface de rede explicitamente, ainda sem autenticação. O SQLite precisa de disco persistente; hospedar somente a pasta `dist` não disponibiliza a API.
-
-Próximas etapas: login e autorização por perfil, usuários individuais, coordenadas e mapa real, notificações, prazos operacionais e integração de IA validada.
+O mapa depende de OpenStreetMap/Leaflet e o geocoder externo Nominatim. O painel de alertas apresenta regras explicáveis, não um modelo de IA. A plataforma permanece um projeto acadêmico, sem vínculo com a Prefeitura de Marília.

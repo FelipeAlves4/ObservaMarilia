@@ -3,18 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24.0.0" },
+  "engines": {
+    "node": ">=24.0.0"
+  },
   "scripts": {
-    "dev": "node scripts/dev.mjs",
+    "dev": "vite --host 127.0.0.1",
     "dev:web": "vite --host 127.0.0.1",
     "dev:api": "node --watch server/index.mjs",
     "build": "tsc -b && vite build",
-    "start": "node server/index.mjs",
-    "test": "node --test server/*.test.mjs",
+    "dev:legacy": "node scripts/dev.mjs",
+    "start:legacy": "node server/index.mjs",
+    "test": "npm run test:legacy && npm run test:contract",
+    "test:legacy": "node --test server/*.test.mjs",
+    "test:contract": "node --test test/*.test.mjs",
     "check": "npm run build && npm test"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
+    "@supabase/supabase-js": "2.118.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
