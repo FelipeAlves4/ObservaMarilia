@@ -1,24 +1,24 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { api } from './api';
+import { useAuth } from './auth';
 import type { Occurrence } from './types';
 interface DataValue { records: Occurrence[]; mine: Occurrence[]; loading: boolean; error: string; refresh: () => Promise<void> }
 const DataContext = createContext<DataValue | null>(null);
 export function DataProvider({ children }: { children: ReactNode }) {
+  const { session, profile } = useAuth();
   const [records, setRecords] = useState<Occurrence[]>([]);
   const [mine, setMine] = useState<Occurrence[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const refresh = useCallback(async () => {
     try {
-      const [all, own] = await Promise.all([api.list(), api.list(true)]);
+      const [all, own] = await Promise.all([api.list(profile?.role === 'manager' ? 'all' : 'public'), session ? api.list('mine') : Promise.resolve([])]);
       setRecords(all); setMine(own); setError('');
     } catch (e) { setError(e instanceof Error ? e.message : 'Erro de conexão.'); }
     finally { setLoading(false); }
-  }, []);
+  }, [profile?.role, session]);
   useEffect(() => {
     void refresh();
-    const interval = window.setInterval(() => { void refresh(); }, 10_000);
-    return () => window.clearInterval(interval);
   }, [refresh]);
   return <DataContext.Provider value={{ records, mine, loading, error, refresh }}>{children}</DataContext.Provider>;
 }

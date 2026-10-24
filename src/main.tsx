@@ -7,4 +7,5 @@ import '@fontsource/inter/latin-700.css';
 import './styles.css';
 import App from './App';
 import { DataProvider } from './data';
-createRoot(document.getElementById('root')!).render(<StrictMode><DataProvider><App /></DataProvider></StrictMode>);
+import { AuthProvider } from './auth';
+createRoot(document.getElementById('root')!).render(<StrictMode><AuthProvider><DataProvider><App /></DataProvider></AuthProvider></StrictMode>);
