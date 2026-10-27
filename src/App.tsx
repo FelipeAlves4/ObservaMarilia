@@ -17,18 +17,18 @@ import { Presentation } from './pages/Presentation';
 import { Collaborators } from './pages/Collaborators';
 import { CollaboratorPortal } from './pages/CollaboratorPortal';
 import { Access } from './pages/Access';
-import { useAuth } from './auth';
+import { canAccessProfile, useAuth } from './auth';
 export default function App() {
   const fullRoute=useRoute(); const [route,query='']=fullRoute.split('?'); const manager=route.startsWith('/gestor'); const collaborator=route.startsWith('/colaborador');
   const [period,setPeriod]=useState('7'); const { records,mine,loading,error,refresh }=useData(); const { profile, loading: authLoading } = useAuth();
   const periodRecords=inPeriod(records,period); const initialRegion=new URLSearchParams(query).get('regiao') || '';
   useEffect(() => { document.title=(collaborator ? 'Colaborador' : manager ? 'Gestor' : 'Cidade')+' • ObservaMarília'; },[collaborator,manager]);
   let content;
-  if(route === '/acesso') return <Access requested={new URLSearchParams(query).get('returnTo') || ''} />;
+  if(route === '/acesso') { const accessQuery = new URLSearchParams(query); return <Access requested={accessQuery.get('returnTo') || ''} accessType={accessQuery.get('tipo') || new URLSearchParams(location.search).get('tipo')} />; }
   if(authLoading) return <div className="loading" role="status">Verificando sessão…</div>;
   const needsCitizen = route === '/relatar' || route === '/meus-relatos';
   const needsManager = route.startsWith('/gestor'); const needsCollaborator = route === '/colaborador';
-  if ((needsCitizen && profile?.role !== 'citizen') || (needsManager && profile?.role !== 'manager') || (needsCollaborator && profile?.role !== 'collaborator')) return <Access requested={query ? `${route}?${query}` : route} />;
+  if ((needsCitizen && profile?.role !== 'citizen') || (needsManager && profile?.role !== 'manager') || (needsCollaborator && profile?.role !== 'collaborator') || !canAccessProfile(profile)) return <Access requested={query ? `${route}?${query}` : route} />;
   if(route === '/relatar') return <Report />;
   else if(route === '/') content=<Home />;
   else if(route === '/apresentacao') content=<Presentation />;

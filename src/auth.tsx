@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { requireSupabaseConfig, supabase } from './supabase';
+import { canAccessProfile, profileAccessIssue } from './accessPolicy';
 
 export type AppRole = 'citizen' | 'manager' | 'collaborator';
 export interface Profile { id: string; name: string; role: AppRole; accountStatus: 'active'|'suspended'; collaboratorId?: string|null; team?: string|null; active?: boolean }
@@ -12,6 +13,7 @@ async function loadProfile() {
   if (error) throw error;
   return data as unknown as Profile|null;
 }
+export { canAccessProfile, profileAccessIssue };
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session|null>(null);
   const [profile, setProfile] = useState<Profile|null>(null);
