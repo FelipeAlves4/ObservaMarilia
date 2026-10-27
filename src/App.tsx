@@ -28,7 +28,7 @@ export default function App() {
   if(authLoading) return <div className="loading" role="status">Verificando sessão…</div>;
   const needsCitizen = route === '/relatar' || route === '/meus-relatos';
   const needsManager = route.startsWith('/gestor'); const needsCollaborator = route === '/colaborador';
-  if ((needsCitizen && profile?.role !== 'citizen') || (needsManager && profile?.role !== 'manager') || (needsCollaborator && profile?.role !== 'collaborator')) return <Access requested={route} />;
+  if ((needsCitizen && profile?.role !== 'citizen') || (needsManager && profile?.role !== 'manager') || (needsCollaborator && profile?.role !== 'collaborator')) return <Access requested={query ? `${route}?${query}` : route} />;
   if(route === '/relatar') return <Report />;
   else if(route === '/') content=<Home />;
   else if(route === '/apresentacao') content=<Presentation />;

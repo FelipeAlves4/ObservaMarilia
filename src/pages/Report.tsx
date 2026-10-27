@@ -42,7 +42,7 @@ export function Report() {
   }
   return <div className="report-shell"><header className="report-header"><a href="#/">ObservaMarilia<small>Minha cidade</small></a><span className="avatar">FA</span></header><main className="report-content">
     {success ? <div className="report-success" role="status"><span className="success-mark">✓</span><h1>Relato enviado!</h1><p>Seu registro foi salvo e está em análise.</p><div className="protocol-box"><small>SEU PROTOCOLO</small><strong>{success.protocol}</strong></div><p>Prioridade sugerida: <strong>{success.priority}</strong>. A equipe municipal deve validar a triagem.</p><a className="btn btn-teal full-width" href={'#/ocorrencias/'+success.id}>Acompanhar ocorrência</a><a className="btn btn-light full-width" href="#/meus-relatos">Ver meus relatos</a></div>
-    : <><h1>Reportar um problema</h1><p>Ajude a melhorar a cidade informando o que aconteceu.</p><form onSubmit={submit}>
+    : <><h1>Reportar um problema</h1><p>Ajude a melhorar a cidade informando o que aconteceu.</p><form noValidate onSubmit={submit}>
       <label className={'photo-upload ' + (photo ? 'has-photo' : '')} htmlFor="photo">{photo && preview ? <img src={preview} alt="Prévia da foto selecionada" /> : <><span className="photo-plus">+</span><strong>{reading ? 'Carregando foto…' : 'Adicionar foto do local'}</strong><small>JPG ou PNG · até 2 MB · opcional</small></>}</label>
       <input ref={fileInput} id="photo" className="visually-hidden" type="file" accept="image/jpeg,image/png" onChange={e => choosePhoto(e.target.files?.[0])} aria-label="Adicionar foto do local" />
       {photo ? <button type="button" className="text-button" onClick={() => { setPhoto(null); setPreview(null); if(fileInput.current) fileInput.current.value=''; }}>Remover foto</button> : null}
@@ -57,7 +57,7 @@ export function Report() {
         {locationMessage?<p className="osm-note" role="status">{locationMessage}</p>:null}
         <small>A busca é feita sob demanda por um serviço controlado, com cache e limite global de frequência.</small>
       </section>
-      <label htmlFor="description">Descrição<textarea id="description" name="description" placeholder="Ex.: buraco grande próximo à faixa de pedestres..." required minLength={10} maxLength={1200} rows={4} /></label>
+      <label htmlFor="description">Descrição<textarea className="resize-none" id="description" name="description" placeholder="Ex.: buraco grande próximo à faixa de pedestres..." required minLength={10} maxLength={1200} rows={4} /></label>
       <div className="form-info">A prioridade é sugerida por regras explícitas; a análise e o encaminhamento são feitos por um gestor.</div><ErrorBox error={error} /><button type="submit" className="btn btn-submit full-width" disabled={busy || reading}>{busy ? 'Enviando…' : 'Enviar ocorrência'}</button>
     </form></>}
     <a className="report-back" href="#/">Voltar para a cidade</a>
