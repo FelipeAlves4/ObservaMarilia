@@ -11,6 +11,7 @@ type FieldName = 'name' | 'email' | 'password' | 'confirmPassword';
 type FieldErrors = Partial<Record<FieldName, string>>;
 
 const ACCESS: Record<AccessType, { query: string; role: AppRole; title: string; subtitle: string; action: string; chooserTitle: string; chooserDescription: string }> = {
+  admin: { query: 'admin', role: 'admin', title: 'Administração do ObservaMarília', subtitle: 'Entre com uma conta administrativa autorizada.', action: 'Entrar na administração', chooserTitle: 'Administrador', chooserDescription: 'Gerencie secretarias municipais e os acessos de gestores autorizados.' },
   citizen: { query: 'cidadao', role: 'citizen', title: 'Acesse sua conta de cidadão', subtitle: 'Acompanhe suas solicitações e participe das melhorias de Marília.', action: 'Entrar', chooserTitle: 'Cidadão', chooserDescription: 'Registre problemas da cidade, acompanhe suas solicitações e participe das melhorias de Marília.' },
   manager: { query: 'gestor', role: 'manager', title: 'Acesso à gestão municipal', subtitle: 'Entre com suas credenciais administrativas.', action: 'Entrar no painel', chooserTitle: 'Gestor', chooserDescription: 'Gerencie ocorrências, acompanhe indicadores e coordene as equipes responsáveis pelos atendimentos.' },
   collaborator: { query: 'colaborador', role: 'collaborator', title: 'Portal do colaborador', subtitle: 'Acompanhe suas atividades e registre os atendimentos realizados.', action: 'Entrar no portal', chooserTitle: 'Colaborador', chooserDescription: 'Consulte serviços atribuídos, atualize o andamento e registre as atividades executadas.' },
@@ -18,6 +19,7 @@ const ACCESS: Record<AccessType, { query: string; role: AppRole; title: string; 
 
 function getExternalParams() { return new URLSearchParams(window.location.search); }
 function parseAccessType(value: string | null) {
+  if (value === 'admin' || value === 'administrador') return 'admin';
   if (value === 'cidadao' || value === 'citizen') return 'citizen';
   if (value === 'gestor' || value === 'manager') return 'manager';
   if (value === 'colaborador' || value === 'collaborator') return 'collaborator';
@@ -42,11 +44,12 @@ function friendlyAuthError(reason: unknown, action: Mode) {
   if (message.includes('vite_supabase')) return 'A conexão de autenticação ainda não foi configurada neste ambiente.';
   return 'Não foi possível concluir esta ação agora. Tente novamente em instantes.';
 }
-function displayRole(role: AppRole) { return role === 'manager' ? 'Gestor' : role === 'collaborator' ? 'Colaborador' : 'Cidadão'; }
+function displayRole(role: AppRole) { return role === 'admin' ? 'Administrador' : role === 'manager' ? 'Gestor' : role === 'collaborator' ? 'Colaborador' : 'Cidadão'; }
 function PasswordRequirements() { return <p className="auth-password-requirement"><span aria-hidden="true">•</span> Use pelo menos 8 caracteres. Evite dados fáceis de adivinhar.</p>; }
 
 function AccessIcon({ type }: { type: AccessType }) {
   const paths: Record<AccessType, ReactNode> = {
+    admin: <><path d="M4 20h16M6 20V9l6-4 6 4v11M9 20v-5h6v5M9 11h.01M15 11h.01" /><path d="M12 3v3" /></>,
     citizen: <><circle cx="9" cy="8" r="3" /><circle cx="16" cy="9" r="2.5" /><path d="M3.5 20c.7-4 3-6 5.5-6s4.8 2 5.5 6M14 20c.4-2.5 1.8-4.1 4.3-4.1 1.2 0 2.2.4 3.2 1.4" /></>,
     manager: <><path d="M4 20h16M6 20V9l6-4 6 4v11M9 20v-5h6v5M9 11h.01M15 11h.01" /></>,
     collaborator: <><circle cx="12" cy="7" r="3" /><path d="M5 21v-2.5c0-3 3.1-5 7-5s7 2 7 5V21M8 4.5 12 3l4 1.5" /></>,
@@ -61,7 +64,7 @@ function AccessChooser() {
     <h2 id="auth-choice-title" className="auth-title">Bem-vindo ao ObservaMarília</h2>
     <p className="auth-description">Selecione como deseja acessar a plataforma.</p>
     <div className="auth-choice-grid">
-      {(Object.keys(ACCESS) as AccessType[]).map(type => <article className="auth-choice-card" key={type}>
+      {(['citizen', 'manager', 'collaborator'] as AccessType[]).map(type => <article className="auth-choice-card" key={type}>
         <AccessIcon type={type} />
         <h3>{ACCESS[type].chooserTitle}</h3>
         <p>{ACCESS[type].chooserDescription}</p>

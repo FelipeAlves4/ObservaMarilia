@@ -1,8 +1,9 @@
-export type AccessRole = 'citizen' | 'manager' | 'collaborator';
+export type AccessRole = 'admin' | 'citizen' | 'manager' | 'collaborator';
 export type AccessArea = AccessRole;
 export type AccessProfile = { role: AccessRole; accountStatus: 'active' | 'suspended'; active?: boolean } | null;
 
 export const areaRole: Record<AccessArea, AccessRole> = {
+  admin: 'admin',
   citizen: 'citizen',
   manager: 'manager',
   collaborator: 'collaborator',
@@ -18,9 +19,10 @@ export function profileAccessIssue(profile: AccessProfile) {
 export function canAccessProfile(profile: AccessProfile) { return !profileAccessIssue(profile); }
 export function hasAreaAccess(profile: AccessProfile, area: AccessArea) { return canAccessProfile(profile) && profile?.role === areaRole[area]; }
 
-export function roleHome(role: AccessRole) { return role === 'manager' ? '/gestor' : role === 'collaborator' ? '/colaborador' : '/meus-relatos'; }
+export function roleHome(role: AccessRole) { return role === 'admin' ? '/admin/secretarias' : role === 'manager' ? '/gestor' : role === 'collaborator' ? '/colaborador' : '/meus-relatos'; }
 export function allowedDestination(role: AccessRole, requested: string) {
   const route = requested.split('?')[0];
+  if (role === 'admin') return route === '/admin/secretarias' || route === '/admin/gestores';
   if (role === 'citizen') return route === '/relatar' || route === '/meus-relatos';
   if (role === 'manager') return route === '/gestor' || route.startsWith('/gestor/');
   return route === '/colaborador';

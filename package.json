@@ -16,7 +16,8 @@
     "test": "npm run test:legacy && npm run test:contract",
     "test:legacy": "node --test server/*.test.mjs",
     "test:contract": "node --test test/*.test.mjs",
-    "check": "npm run build && npm test"
+    "check": "npm run build && npm test",
+    "bootstrap:admin": "node scripts/bootstrap-admin.mjs"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",

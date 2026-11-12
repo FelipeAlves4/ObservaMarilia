@@ -22,7 +22,48 @@ No painel Supabase, em **Authentication → URL Configuration**, defina:
 
 Configure SMTP antes de depender de confirmação de e-mail, convites e recuperação de senha. O cadastro público cria exclusivamente um perfil `citizen`; não há elevação de papel pelo navegador.
 
-## Primeiro gestor
+## Primeiro administrador (bootstrap seguro)
+
+O primeiro administrador não é criado pela interface e não possui senha fixa. Execute este procedimento somente em um terminal de implantação ou outra máquina controlada, com a chave de serviço guardada no cofre de segredos:
+
+```powershell
+$env:SUPABASE_URL = "https://<project-ref>.supabase.co"
+$env:SUPABASE_SERVICE_ROLE_KEY = "<service-role-secreta>"
+$env:BOOTSTRAP_ADMIN_EMAIL = "admin@exemplo.com"
+$env:BOOTSTRAP_ADMIN_NAME = "Administração ObservaMarília" # opcional
+$env:APP_URL = "https://observa-marilia.vercel.app" # obrigatório; nunca localhost em produção
+npm run bootstrap:admin
+```
+
+O comando envia um convite para o e-mail definido, configura o perfil como `admin` e é idempotente para esse mesmo usuário. Depois de existir um administrador ativo, ele se recusa a promover outro e-mail. Nunca defina `SUPABASE_SERVICE_ROLE_KEY` em `.env`, `VITE_*`, Vercel pública ou no navegador.
+
+Se o convite expirar ou tiver sido aberto em uma URL errada, reenvie uma recuperação de senha apenas para o mesmo administrador já configurado:
+
+```powershell
+$env:BOOTSTRAP_RESEND_PASSWORD = "true"
+npm run bootstrap:admin
+```
+
+O link será enviado para `APP_URL` e abrirá `#/admin/login` para a definição segura de senha.
+
+## Administração de secretarias e gestores
+
+- Login administrativo: `#/admin/login`.
+- Secretarias: `#/admin/secretarias`.
+- Gestores: `#/admin/gestores`.
+
+Somente o papel `admin` pode criar, alterar, ativar/desativar secretarias e convidar ou bloquear gestores. A Edge Function `manage-admin` valida a sessão e o papel no servidor antes de usar a chave de serviço; as tabelas também têm RLS e não expõem permissões de escrita ao cliente.
+
+Para demonstrar: entre como administrador, cadastre (ou use) uma secretaria ativa, abra **Gestores**, envie o convite e peça ao gestor para definir a própria senha pelo e-mail. Após o login, a conta `manager` é encaminhada a `#/gestor`.
+
+Além das variáveis da seção Ambiente, configure nos segredos da Edge Function `manage-admin`:
+
+```text
+ALLOWED_ORIGINS=https://observa-marilia.vercel.app,http://127.0.0.1:5173
+SUPABASE_SERVICE_ROLE_KEY=<somente secret>
+```
+
+## Primeiro gestor legado
 
 1. Crie a conta do responsável pelo fluxo normal de Auth.
 2. No SQL Editor, identifique o usuário pelo e-mail e promova somente essa conta:

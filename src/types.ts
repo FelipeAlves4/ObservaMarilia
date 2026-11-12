@@ -11,6 +11,14 @@ export interface Collaborator {
   id: string; name: string; email: string; phone: string; employeeCode: string; team: string;
   role: string; active: boolean; createdAt: string; assignedCount?: number; completedCount?: number; overdueCount?: number;
 }
+export interface Department {
+  id: string; name: string; acronym: string; description: string; email: string; phone: string;
+  active: boolean; createdAt: string; managerCount: number;
+}
+export interface AdminManager {
+  id: string; name: string; email: string; departmentId: string; department: string;
+  jobTitle: string; active: boolean; createdAt: string;
+}
 export interface ExecutionUpdate { id: number; kind: 'andamento' | 'conclusao'; note: string; progress: number | null; photo?: string | null; photoPath?: string | null; createdAt: string; collaboratorName: string }
 export interface Occurrence {
   id: string; protocol: string; title: string; category: Category; region: Region;

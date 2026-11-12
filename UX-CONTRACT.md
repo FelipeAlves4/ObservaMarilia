@@ -11,6 +11,7 @@ This contract records the canonical authentication workflow for ObservaMarília.
 | Date | Native datetime-local | This contract | Platform picker accepted | Browser value entry |
 | Toast | Inline `AuthFeedback` | This contract and `AuthUi.tsx` | Error, success, information | Live region and visual state |
 | CRUD | Supabase Auth methods | `Access.tsx` and Supabase Auth | Sign-in, sign-up, recovery, reset | Build and configured Auth environment |
+| Administrative CRUD | `manage-admin` Edge Function + admin RPCs | `AdminManagement.tsx`, `manage-admin`, administrative migration | Department creation/edit/status, manager invitation/status | Admin session plus Edge Function role check |
 
 ## Authentication form
 
@@ -21,6 +22,8 @@ The reusable `auth-*` family owns all public sign-in, citizen registration, reco
 `#/acesso` is the access-area chooser. `#/acesso?tipo=cidadao`, `#/acesso?tipo=gestor`, and `#/acesso?tipo=colaborador` share one Supabase Auth session but communicate different entry contexts. Public registration always creates a citizen. After login, the selected context is compared with the role returned by `current_profile()`; a mismatch never redirects into the requested area. A requested route is honoured only when permitted by the current profile role: citizen to `/relatar` or `/meus-relatos`, manager to `/gestor…`, and collaborator to `/colaborador`. Otherwise users go to their role home. This client behavior complements, never replaces, the route and RLS checks.
 
 An account with `accountStatus !== active`, or a collaborator with `active === false`, cannot open an authenticated area. The UI explains the restriction and permits sign-out; the database RPCs and auth ban remain the enforcing authority.
+
+`#/admin/login` is not linked from the public chooser. Only `admin` profiles can use `#/admin/secretarias` and `#/admin/gestores`; direct navigation by another role returns the access screen with a specific permission message. Administrative mutations go through the trusted `manage-admin` Edge Function, which rechecks the calling session and role before using server-only credentials. The administrator flow uses inline success/error feedback and a native modal confirmation before activating or deactivating a department or manager.
 
 ## Auth feedback and asynchronous state
 

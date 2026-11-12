@@ -1,5 +1,5 @@
 import { requireSupabaseConfig, supabase } from './supabase';
-import type { Collaborator, ExecutionUpdate, Occurrence, ReportInput } from './types';
+import type { AdminManager, Collaborator, Department, ExecutionUpdate, Occurrence, ReportInput } from './types';
 
 type RawOccurrence = Omit<Occurrence, 'photo'> & { photoPath?: string|null; executionUpdates?: Array<ExecutionUpdate & { photoPath?: string|null }> };
 const message = (error: unknown) => error instanceof Error ? error.message : 'Não foi possível concluir a operação.';
@@ -35,6 +35,13 @@ async function invokeManager(payload: Record<string, unknown>) {
   if (data?.error) throw new Error(data.error);
   return data;
 }
+async function invokeAdmin(payload: Record<string, unknown>) {
+  requireSupabaseConfig();
+  const { data, error } = await supabase.functions.invoke('manage-admin', { body: payload });
+  if (error) throw new Error(message(error));
+  if (data?.error) throw new Error(data.error);
+  return data;
+}
 
 export const api = {
   async list(scope: 'public'|'mine'|'assigned'|'all' = 'public') { return Promise.all((await rpc<RawOccurrence[]>('list_occurrences', { p_scope: scope })).map(record => normalize(record))); },
@@ -53,6 +60,13 @@ export const api = {
   async collaborators() { return rpc<Collaborator[]>('list_collaborators'); },
   async createCollaborator(data: Omit<Collaborator, 'id'|'active'|'createdAt'|'assignedCount'|'completedCount'|'overdueCount'>) { return invokeManager({ action: 'invite', ...data }); },
   async setCollaborator(id: string, active: boolean) { return invokeManager({ action: 'set-active', collaboratorId: id, active }); },
+  async departments() { return rpc<Department[]>('list_departments'); },
+  async managers() { return rpc<AdminManager[]>('list_admin_managers'); },
+  async createDepartment(department: Omit<Department, 'id'|'createdAt'|'managerCount'>) { return invokeAdmin({ action: 'create-department', department }); },
+  async updateDepartment(id: string, department: Omit<Department, 'id'|'createdAt'|'managerCount'>) { return invokeAdmin({ action: 'update-department', departmentId: id, department }); },
+  async setDepartmentActive(id: string, active: boolean) { return invokeAdmin({ action: 'set-department-active', departmentId: id, active }); },
+  async inviteManager(data: { name: string; email: string; departmentId: string; jobTitle: string }) { return invokeAdmin({ action: 'invite-manager', ...data }); },
+  async setManagerActive(id: string, active: boolean) { return invokeAdmin({ action: 'set-manager-active', managerId: id, active }); },
   async collaboratorTasks() { return Promise.all((await rpc<RawOccurrence[]>('list_occurrences', { p_scope: 'assigned' })).map(record => normalize(record))); },
   async start(id: string) { return normalize(await rpc<RawOccurrence>('start_occurrence', { p_occurrence_id: id }), true); },
   async progress(id: string, data: { note: string; progress: number; photo: File|null }) {

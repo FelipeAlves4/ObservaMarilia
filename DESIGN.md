@@ -71,6 +71,8 @@ Cards use a 20px radius, fields and controls 12px. Buttons are softly rounded re
 
 Authentication is owned by the `auth-*` component family: `AuthLayout`, `AuthCard`, `AuthInput`, `PasswordInput`, and `AuthFeedback`. They own labels, invalid state, focus treatment, password visibility, and form feedback. Shared global buttons and administrative forms are not reused for the auth workflow.
 
+Administrative management uses the `admin-*` family. It retains the navy, blue, turquoise, canvas and surface tokens, but makes the institutional hierarchy explicit through a compact navy navigation bar, a quiet form panel and a dense, horizontally scrollable directory table. The management interface must keep native form controls, inline status feedback, and semantic status labels rather than hiding operational state in color.
+
 ## Do's and Don'ts
 
 Do make every status specific about the next useful action. Do reserve vivid color for actions and meaningful status. Do preserve the requested protected destination only after checking the authenticated role. Do not expose raw Supabase errors, password values, or role-changing controls. Do not let auth styles alter occurrence or collaborator forms.

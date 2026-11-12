@@ -3,8 +3,8 @@ import type { AuthChangeEvent, Session } from '@supabase/supabase-js';
 import { requireSupabaseConfig, supabase } from './supabase';
 import { canAccessProfile, profileAccessIssue } from './accessPolicy';
 
-export type AppRole = 'citizen' | 'manager' | 'collaborator';
-export interface Profile { id: string; name: string; role: AppRole; accountStatus: 'active'|'suspended'; collaboratorId?: string|null; team?: string|null; active?: boolean }
+export type AppRole = 'admin' | 'citizen' | 'manager' | 'collaborator';
+export interface Profile { id: string; name: string; role: AppRole; accountStatus: 'active'|'suspended'; collaboratorId?: string|null; team?: string|null; active?: boolean; departmentId?: string|null; department?: string|null }
 interface AuthValue { session: Session|null; profile: Profile|null; loading: boolean; authEvent: AuthChangeEvent|null; signOut: () => Promise<void>; refreshProfile: () => Promise<Profile|null> }
 const AuthContext = createContext<AuthValue|null>(null);
 

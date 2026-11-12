@@ -9,9 +9,12 @@ const policy = await import(`data:text/javascript;base64,${Buffer.from(compiled)
 
 test('direciona cada papel somente para a área permitida', () => {
   const citizen = { role: 'citizen', accountStatus: 'active' };
+  const admin = { role: 'admin', accountStatus: 'active' };
   const manager = { role: 'manager', accountStatus: 'active' };
   const collaborator = { role: 'collaborator', accountStatus: 'active', active: true };
   assert.equal(policy.hasAreaAccess(citizen, 'citizen'), true);
+  assert.equal(policy.hasAreaAccess(admin, 'admin'), true);
+  assert.equal(policy.hasAreaAccess(citizen, 'admin'), false);
   assert.equal(policy.hasAreaAccess(citizen, 'manager'), false);
   assert.equal(policy.hasAreaAccess(manager, 'manager'), true);
   assert.equal(policy.hasAreaAccess(manager, 'collaborator'), false);
@@ -19,6 +22,8 @@ test('direciona cada papel somente para a área permitida', () => {
   assert.equal(policy.safeDestination(citizen, '/gestor'), '/meus-relatos');
   assert.equal(policy.safeDestination(manager, '/gestor/mapa?regiao=norte'), '/gestor/mapa?regiao=norte');
   assert.equal(policy.safeDestination(collaborator, '/meus-relatos'), '/colaborador');
+  assert.equal(policy.safeDestination(admin, '/admin/secretarias'), '/admin/secretarias');
+  assert.equal(policy.safeDestination(admin, '/gestor'), '/admin/secretarias');
 });
 
 test('bloqueia contas suspensas e colaboradores inativos', () => {

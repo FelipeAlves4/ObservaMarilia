@@ -24,3 +24,17 @@ test('cliente de produção usa Supabase e não chama a API SQLite', async () =>
   assert.match(geocoder, /functions\.invoke\('geocode-marilia'/);
   assert.doesNotMatch(geocoder, /nominatim\.openstreetmap\.org/);
 });
+
+test('domínio administrativo exige RBAC e mantém credenciais privilegiadas fora do cliente', async () => {
+  const roleMigration = await read('supabase/migrations/20261112105900_add_admin_role.sql');
+  const migration = await read('supabase/migrations/20261112110000_administrative_management.sql');
+  const edgeFunction = await read('supabase/functions/manage-admin/index.ts');
+  const api = await read('src/api.ts');
+  assert.match(roleMigration, /add value if not exists 'admin'/i);
+  assert.match(migration, /enable row level security/i);
+  assert.match(migration, /create or replace function public\.is_admin/i);
+  assert.match(edgeFunction, /profile\?\.role !== "admin"/);
+  assert.match(edgeFunction, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(api, /functions\.invoke\('manage-admin'/);
+  assert.doesNotMatch(api, /SERVICE_ROLE/);
+});

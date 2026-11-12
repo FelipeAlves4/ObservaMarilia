@@ -7,6 +7,7 @@ Plataforma de participação cidadã e gestão de ocorrências urbanas. A aplica
 - Cidadãos autenticados criam e acompanham somente os próprios relatos.
 - Gestores fazem triagem, encaminham ocorrências e validam conclusões.
 - Colaboradores convidados recebem tarefas de sua equipe, iniciam, atualizam e concluem atendimentos.
+- Administradores autorizados gerenciam secretarias e convidam gestores, sem expor cadastro administrativo ao cidadão.
 - O histórico é imutável e o fluxo é: `Nova → Em análise → Programada → Em execução → Aguardando validação → Resolvida`.
 - Imagens ficam no bucket privado `occurrence-media`; o cliente usa URL assinada temporária.
 - A busca de endereço passa pela Edge Function `geocode-marilia`, que usa cache e limite global para o Nominatim.
@@ -36,14 +37,14 @@ Os testes atuais em `server/` são uma suíte de regressão do backend SQLite le
 
 O projeto está vinculado ao ref `obiwxknvjvicgyrowcfz`. As migrações em `supabase/migrations/` definem o banco, RLS, políticas do Storage e RPCs de fluxo. As funções Edge ficam em `supabase/functions/`.
 
-Consulte [docs/SUPABASE.md](docs/SUPABASE.md) para configurar Auth, primeiro gestor, variáveis da Vercel, redirects e operação segura.
+Consulte [docs/SUPABASE.md](docs/SUPABASE.md) para configurar Auth, criar o primeiro administrador por bootstrap, convidar gestores, configurar variáveis e operar com segurança.
 
 ## Estrutura
 
 ```text
 src/                       frontend React e cliente Supabase
 supabase/migrations/        esquema, RLS e funções RPC versionadas
-supabase/functions/         Edge Functions de colaboradores e geocodificação
+supabase/functions/         Edge Functions de colaboradores, administração e geocodificação
 server/                     backend SQLite legado, apenas desenvolvimento/teste
 docs/SUPABASE.md            guia operacional da integração
 ```
