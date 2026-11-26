@@ -48,22 +48,27 @@ export function Report() {
   return <div className="report-shell"><header className="report-header"><a href={href('/')}>ObservaMarilia<small>Minha cidade</small></a><span className="avatar">{initials}</span></header>{adminCitizenMode && profile?.role === 'admin' ? <div className="citizen-view-indicator"><span>Visualizando como Cidadão · {profile.name}</span><a href="#/admin/secretarias">Voltar à Administração</a></div> : null}<main className="report-content">
     {success ? <div className="report-success" role="status"><span className="success-mark">✓</span><h1>Relato enviado!</h1><p>Seu registro foi salvo e está em análise.</p><div className="protocol-box"><small>SEU PROTOCOLO</small><strong>{success.protocol}</strong></div><p>Prioridade sugerida: <strong>{success.priority}</strong>. A equipe municipal deve validar a triagem.</p><a className="btn btn-teal full-width" href={href('/ocorrencias/'+success.id)}>Acompanhar ocorrência</a><a className="btn btn-light full-width" href={href('/meus-relatos')}>Ver meus relatos</a></div>
     : <><h1>Reportar um problema</h1><p>Ajude a melhorar a cidade informando o que aconteceu.</p><form noValidate onSubmit={submit}>
-      <label className={'photo-upload ' + (photo ? 'has-photo' : '')} htmlFor="photo">{photo && preview ? <img src={preview} alt="Prévia da foto selecionada" /> : <><span className="photo-plus">+</span><strong>{reading ? 'Carregando foto…' : 'Adicionar foto do local'}</strong><small>JPG ou PNG · até 2 MB · opcional</small></>}</label>
-      <input ref={fileInput} id="photo" className="visually-hidden" type="file" accept="image/jpeg,image/png" onChange={e => choosePhoto(e.target.files?.[0])} aria-label="Adicionar foto do local" />
-      {photo ? <button type="button" className="text-button" onClick={() => { setPhoto(null); setPreview(null); if(fileInput.current) fileInput.current.value=''; }}>Remover foto</button> : null}
-      <label htmlFor="title">Título do problema<input id="title" name="title" placeholder="Ex.: buraco na Av. das Esmeraldas" required minLength={5} maxLength={100} /></label>
-      <label htmlFor="category">Categoria<select id="category" name="category" aria-label="Categoria">{categories.map(c => <option key={c}>{c}</option>)}</select></label>
-      <label htmlFor="address">Localização<input ref={addressInput} id="address" name="address" placeholder="Rua, avenida e número ou referência" required minLength={5} maxLength={160} /></label>
-      <div className="form-two"><label htmlFor="neighborhood">Bairro<input ref={neighborhoodInput} id="neighborhood" name="neighborhood" placeholder="Seu bairro" required minLength={2} maxLength={80} /></label><label htmlFor="region">Região<select id="region" name="region" aria-label="Região">{regions.map(r => <option key={r}>{r}</option>)}</select></label></div>
-      <section className="report-location-picker">
+      <div className="report-form-grid"><section className="report-form-primary" aria-labelledby="report-problem-heading">
+        <h2 id="report-problem-heading">Sobre o problema</h2>
+        <label htmlFor="title">Título do problema<input id="title" name="title" placeholder="Ex.: buraco na Av. das Esmeraldas" required minLength={5} maxLength={100} /></label>
+        <label htmlFor="category">Categoria<select id="category" name="category" aria-label="Categoria">{categories.map(c => <option key={c}>{c}</option>)}</select></label>
+        <label htmlFor="description">Descrição<textarea className="resize-none" id="description" name="description" placeholder="Ex.: buraco grande próximo à faixa de pedestres..." required minLength={10} maxLength={1200} rows={7} /></label>
+      </section><section className="report-form-secondary" aria-labelledby="report-location-heading">
+        <h2 id="report-location-heading">Foto e localização</h2>
+        <label className={'photo-upload ' + (photo ? 'has-photo' : '')} htmlFor="photo">{photo && preview ? <img src={preview} alt="Prévia da foto selecionada" /> : <><span className="photo-plus">+</span><strong>{reading ? 'Carregando foto…' : 'Adicionar foto do local'}</strong><small>JPG ou PNG · até 2 MB · opcional</small></>}</label>
+        <input ref={fileInput} id="photo" className="visually-hidden" type="file" accept="image/jpeg,image/png" onChange={e => choosePhoto(e.target.files?.[0])} aria-label="Adicionar foto do local" />
+        {photo ? <button type="button" className="text-button" onClick={() => { setPhoto(null); setPreview(null); if(fileInput.current) fileInput.current.value=''; }}>Remover foto</button> : null}
+        <label htmlFor="address">Localização<input ref={addressInput} id="address" name="address" placeholder="Rua, avenida e número ou referência" required minLength={5} maxLength={160} /></label>
+        <div className="form-two"><label htmlFor="neighborhood">Bairro<input ref={neighborhoodInput} id="neighborhood" name="neighborhood" placeholder="Seu bairro" required minLength={2} maxLength={80} /></label><label htmlFor="region">Região<select id="region" name="region" aria-label="Região">{regions.map(r => <option key={r}>{r}</option>)}</select></label></div>
+      <section className="report-location-picker" aria-label="Localização no mapa">
         <div className="report-location-actions"><strong>Localização no mapa</strong><button className="btn btn-outline" type="button" disabled={geocoding} onClick={()=>void searchLocation()}>{geocoding?'Buscando…':'Buscar endereço no mapa'}</button></div>
         <CityMap variant="picker" point={location} onPick={p=>{setLocation(p);setLocationMessage('Localização selecionada manualmente.');setError('');}} />
         {location?<div className="location-confirmed"><strong>✓ Ponto selecionado</strong><span>{location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}</span><button className="text-button" type="button" onClick={()=>{setLocation(null);setLocationMessage('');}}>Limpar</button></div>:<small>Sem ponto definido. Você ainda pode enviar o relato sem coordenadas.</small>}
         {locationMessage?<p className="osm-note" role="status">{locationMessage}</p>:null}
         <small>A busca é feita sob demanda por um serviço controlado, com cache e limite global de frequência.</small>
       </section>
-      <label htmlFor="description">Descrição<textarea className="resize-none" id="description" name="description" placeholder="Ex.: buraco grande próximo à faixa de pedestres..." required minLength={10} maxLength={1200} rows={4} /></label>
-      <div className="form-info">A prioridade é sugerida por regras explícitas; a análise e o encaminhamento são feitos por um gestor.</div><ErrorBox error={error} /><button type="submit" className="btn btn-submit full-width" disabled={busy || reading}>{busy ? 'Enviando…' : 'Enviar ocorrência'}</button>
+      </section></div>
+      <div className="report-form-footer"><div className="form-info">A prioridade é sugerida por regras explícitas; a análise e o encaminhamento são feitos por um gestor.</div><ErrorBox error={error} /><button type="submit" className="btn btn-submit full-width" disabled={busy || reading}>{busy ? 'Enviando…' : 'Enviar ocorrência'}</button></div>
     </form></>}
     <a className="report-back" href={href('/')}>Voltar para a cidade</a>
   </main></div>;
