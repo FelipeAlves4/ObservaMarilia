@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { formatNumber } from '../helpers';
 import type { Occurrence } from '../types';
+import { useCitizenMode } from '../citizenMode';
 export const asset = (screen: string, name: string) => `/assets/${screen}-${name}.svg`;
 export function ResponsiveAsset({ src, alt, width, height }: { src:string; alt:string; width:number; height:number }) {
   const ref=useRef<HTMLDivElement>(null); const [available,setAvailable]=useState(width);
@@ -12,7 +13,8 @@ export function ResponsiveAsset({ src, alt, width, height }: { src:string; alt:s
   return <div ref={ref} className="responsive-asset" style={{width:'100%',maxWidth:width,height:available*height/width}}><img src={src} alt={alt} style={{transform:`scale(${available/width})`,transformOrigin:'top left'}} /></div>;
 }
 export function Brand({ dark = false }: { dark?: boolean }) {
-  return <a className={'brand ' + (dark ? 'brand-dark' : '')} href={dark ? '#/gestor' : '#/'} aria-label="ObservaMarília, página inicial">
+  const { href } = useCitizenMode();
+  return <a className={'brand ' + (dark ? 'brand-dark' : '')} href={dark ? '#/gestor' : href('/')} aria-label="ObservaMarília, página inicial">
     <span className="brand-logo"><img src={asset(dark ? 'dashboard' : '23-2', 'imgLogoOficialObservaMarilia')} alt="" /></span>
     <span><strong>ObservaMarilia</strong><small>Inteligência Urbana</small></span>
   </a>;
@@ -38,7 +40,8 @@ export function Empty({ title = 'Nenhuma ocorrência encontrada.', text = 'Exper
 }
 export function ErrorBox({ error }: { error: string }) { return error ? <p className="error-box" role="alert">{error}</p> : null; }
 export function RecentList({ records, manager = false, limit = 4 }: { records: Occurrence[]; manager?: boolean; limit?: number }) {
-  return <div className="recent-list">{records.slice(0, limit).map(r => <a key={r.id} className="recent-row" href={`#/${manager ? 'gestor/' : ''}ocorrencias/${r.id}`}>
+  const { href } = useCitizenMode();
+  return <div className="recent-list">{records.slice(0, limit).map(r => <a key={r.id} className="recent-row" href={manager ? `#/gestor/ocorrencias/${r.id}` : href(`/ocorrencias/${r.id}`)}>
     <div><strong>{r.title}</strong><small>{r.region}</small></div><Badge>{r.priority}</Badge><Badge>{r.status}</Badge>
   </a>)}{!records.length ? <Empty /> : null}</div>;
 }

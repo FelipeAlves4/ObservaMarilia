@@ -68,14 +68,24 @@ export const api = {
   async inviteManager(data: { name: string; email: string; departmentId: string; jobTitle: string }) { return invokeAdmin({ action: 'invite-manager', ...data }); },
   async setManagerActive(id: string, active: boolean) { return invokeAdmin({ action: 'set-manager-active', managerId: id, active }); },
   async collaboratorTasks() { return Promise.all((await rpc<RawOccurrence[]>('list_occurrences', { p_scope: 'assigned' })).map(record => normalize(record))); },
+  async adminCollaboratorTasks() { return Promise.all((await rpc<RawOccurrence[]>('admin_list_assigned_occurrences')).map(record => normalize(record))); },
   async start(id: string) { return normalize(await rpc<RawOccurrence>('start_occurrence', { p_occurrence_id: id }), true); },
+  async adminStart(id: string) { return normalize(await rpc<RawOccurrence>('admin_start_occurrence', { p_occurrence_id: id }), true); },
   async progress(id: string, data: { note: string; progress: number; photo: File|null }) {
     const media = data.photo ? await uploadMedia(data.photo, 'evidence') : null;
     return normalize(await rpc<RawOccurrence>('record_execution_progress', { p_occurrence_id: id, p_note: data.note, p_progress: data.progress, p_media_path: media?.path ?? null, p_media_mime_type: media?.mimeType ?? null, p_media_byte_size: media?.byteSize ?? null }), true);
   },
+  async adminProgress(id: string, data: { note: string; progress: number; photo: File|null }) {
+    const media = data.photo ? await uploadMedia(data.photo, 'evidence') : null;
+    return normalize(await rpc<RawOccurrence>('admin_record_execution_progress', { p_occurrence_id: id, p_note: data.note, p_progress: data.progress, p_media_path: media?.path ?? null, p_media_mime_type: media?.mimeType ?? null, p_media_byte_size: media?.byteSize ?? null }), true);
+  },
   async conclude(id: string, data: { note: string; photo: File|null }) {
     const media = data.photo ? await uploadMedia(data.photo, 'evidence') : null;
     return normalize(await rpc<RawOccurrence>('conclude_occurrence', { p_occurrence_id: id, p_note: data.note, p_media_path: media?.path ?? null, p_media_mime_type: media?.mimeType ?? null, p_media_byte_size: media?.byteSize ?? null }), true);
+  },
+  async adminConclude(id: string, data: { note: string; photo: File|null }) {
+    const media = data.photo ? await uploadMedia(data.photo, 'evidence') : null;
+    return normalize(await rpc<RawOccurrence>('admin_conclude_occurrence', { p_occurrence_id: id, p_note: data.note, p_media_path: media?.path ?? null, p_media_mime_type: media?.mimeType ?? null, p_media_byte_size: media?.byteSize ?? null }), true);
   },
   async validate(id: string, data: { decision: 'aprovar'|'corrigir'; note: string }) { return normalize(await rpc<RawOccurrence>('validate_occurrence', { p_occurrence_id: id, p_decision: data.decision === 'aprovar' ? 'approve' : 'correct', p_note: data.note }), true); },
 };

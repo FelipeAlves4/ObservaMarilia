@@ -5,8 +5,13 @@ import { categories, regions, type Occurrence, type Category, type Region } from
 import { ErrorBox } from '../components/ui';
 import { CityMap } from '../components/CityMap';
 import { geocodeMarilia } from '../map/geocode';
+import { useCitizenMode } from '../citizenMode';
+import { useAuth } from '../auth';
 export function Report() {
   const { refresh }=useData(); const [photo,setPhoto]=useState<File|null>(null); const [preview,setPreview]=useState<string|null>(null);
+  const { enabled: adminCitizenMode, href } = useCitizenMode();
+  const { profile } = useAuth();
+  const initials = (profile?.name ?? 'Cidadão').split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase();
   const [error,setError]=useState(''); const [busy,setBusy]=useState(false); const [reading,setReading]=useState(false);
   const [success,setSuccess]=useState<Occurrence|null>(null); const fileInput=useRef<HTMLInputElement>(null);
   const addressInput=useRef<HTMLInputElement>(null), neighborhoodInput=useRef<HTMLInputElement>(null);
@@ -40,8 +45,8 @@ export function Report() {
     } catch(e) { setError(e instanceof Error ? e.message : 'Não foi possível enviar.'); }
     finally { setBusy(false); }
   }
-  return <div className="report-shell"><header className="report-header"><a href="#/">ObservaMarilia<small>Minha cidade</small></a><span className="avatar">FA</span></header><main className="report-content">
-    {success ? <div className="report-success" role="status"><span className="success-mark">✓</span><h1>Relato enviado!</h1><p>Seu registro foi salvo e está em análise.</p><div className="protocol-box"><small>SEU PROTOCOLO</small><strong>{success.protocol}</strong></div><p>Prioridade sugerida: <strong>{success.priority}</strong>. A equipe municipal deve validar a triagem.</p><a className="btn btn-teal full-width" href={'#/ocorrencias/'+success.id}>Acompanhar ocorrência</a><a className="btn btn-light full-width" href="#/meus-relatos">Ver meus relatos</a></div>
+  return <div className="report-shell"><header className="report-header"><a href={href('/')}>ObservaMarilia<small>Minha cidade</small></a><span className="avatar">{initials}</span></header>{adminCitizenMode && profile?.role === 'admin' ? <div className="citizen-view-indicator"><span>Visualizando como Cidadão · {profile.name}</span><a href="#/admin/secretarias">Voltar à Administração</a></div> : null}<main className="report-content">
+    {success ? <div className="report-success" role="status"><span className="success-mark">✓</span><h1>Relato enviado!</h1><p>Seu registro foi salvo e está em análise.</p><div className="protocol-box"><small>SEU PROTOCOLO</small><strong>{success.protocol}</strong></div><p>Prioridade sugerida: <strong>{success.priority}</strong>. A equipe municipal deve validar a triagem.</p><a className="btn btn-teal full-width" href={href('/ocorrencias/'+success.id)}>Acompanhar ocorrência</a><a className="btn btn-light full-width" href={href('/meus-relatos')}>Ver meus relatos</a></div>
     : <><h1>Reportar um problema</h1><p>Ajude a melhorar a cidade informando o que aconteceu.</p><form noValidate onSubmit={submit}>
       <label className={'photo-upload ' + (photo ? 'has-photo' : '')} htmlFor="photo">{photo && preview ? <img src={preview} alt="Prévia da foto selecionada" /> : <><span className="photo-plus">+</span><strong>{reading ? 'Carregando foto…' : 'Adicionar foto do local'}</strong><small>JPG ou PNG · até 2 MB · opcional</small></>}</label>
       <input ref={fileInput} id="photo" className="visually-hidden" type="file" accept="image/jpeg,image/png" onChange={e => choosePhoto(e.target.files?.[0])} aria-label="Adicionar foto do local" />
@@ -60,6 +65,6 @@ export function Report() {
       <label htmlFor="description">Descrição<textarea className="resize-none" id="description" name="description" placeholder="Ex.: buraco grande próximo à faixa de pedestres..." required minLength={10} maxLength={1200} rows={4} /></label>
       <div className="form-info">A prioridade é sugerida por regras explícitas; a análise e o encaminhamento são feitos por um gestor.</div><ErrorBox error={error} /><button type="submit" className="btn btn-submit full-width" disabled={busy || reading}>{busy ? 'Enviando…' : 'Enviar ocorrência'}</button>
     </form></>}
-    <a className="report-back" href="#/">Voltar para a cidade</a>
+    <a className="report-back" href={href('/')}>Voltar para a cidade</a>
   </main></div>;
 }

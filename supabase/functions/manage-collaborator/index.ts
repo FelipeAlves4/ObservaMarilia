@@ -27,7 +27,7 @@ Deno.serve(async (request) => {
   const { data: userData, error: userError } = await caller.auth.getUser();
   if (userError || !userData.user) return json(401, { error: "Sessão inválida." }, origin);
   const { data: profile, error: profileError } = await caller.from("profiles").select("role, account_status").eq("id", userData.user.id).single();
-  if (profileError || profile?.role !== "manager" || profile.account_status !== "active") return json(403, { error: "Acesso restrito a gestores ativos." }, origin);
+  if (profileError || (profile?.role !== "manager" && profile?.role !== "admin") || profile.account_status !== "active") return json(403, { error: "Acesso restrito a gestores e administradores ativos." }, origin);
   let input: Input;
   try { input = await request.json() as Input; } catch { return json(400, { error: "Corpo da requisição inválido." }, origin); }
   const admin = createClient(url, serviceRoleKey, { auth: { autoRefreshToken: false, persistSession: false } });

@@ -4,7 +4,9 @@ import { useData } from '../data';
 import { teams, type Collaborator, type Occurrence } from '../types';
 import { Badge, ErrorBox, Panel, asset, PageHeading, ResponsiveAsset } from '../components/ui';
 import { dateTime } from '../helpers';
+import { useCitizenMode } from '../citizenMode';
 export function Detail({ id, manager = false }: { id: string; manager?: boolean }) {
+  const { href } = useCitizenMode();
   const { records, refresh }=useData(); const [record,setRecord]=useState<Occurrence|null>(null); const [loading,setLoading]=useState(true);
   const [error,setError]=useState(''); const [team,setTeam]=useState<string>(teams[0]); const [note,setNote]=useState(''); const [busy,setBusy]=useState(false); const [saved,setSaved]=useState(''); const [collaborators,setCollaborators]=useState<Collaborator[]>([]); const [assignee,setAssignee]=useState(''); const [decision,setDecision]=useState<'aprovar'|'corrigir'>('aprovar'); const [dueAt,setDueAt]=useState('');
   useEffect(() => { let active=true; setLoading(true); setError('');
@@ -21,9 +23,9 @@ export function Detail({ id, manager = false }: { id: string; manager?: boolean 
     finally { setBusy(false); }
   }
   if(loading) return <div className="loading" role="status">Carregando ocorrência…</div>;
-  if(!record) return <><ErrorBox error={error} /><a className="btn" href={manager ? '#/gestor/ocorrencias' : '#/meus-relatos'}>Voltar aos relatos</a></>;
+  if(!record) return <><ErrorBox error={error} /><a className="btn" href={manager ? '#/gestor/ocorrencias' : href('/meus-relatos')}>Voltar aos relatos</a></>;
   const similar=records.filter(r => r.id !== id && r.region === record.region && r.category === record.category && r.status !== 'Resolvida');
-  return <>{!manager ? <PageHeading title="Detalhes da ocorrência" subtitle="Acompanhe o andamento do atendimento." action={<a className="btn btn-light" href="#/meus-relatos">Voltar aos relatos</a>} /> : <a className="text-button detail-back" href="#/gestor/ocorrencias">Voltar para a fila de ocorrências</a>}
+  return <>{!manager ? <PageHeading title="Detalhes da ocorrência" subtitle="Acompanhe o andamento do atendimento." action={<a className="btn btn-light" href={href('/meus-relatos')}>Voltar aos relatos</a>} /> : <a className="text-button detail-back" href="#/gestor/ocorrencias">Voltar para a fila de ocorrências</a>}
     <Panel className="detail-summary"><div><h2>{record.title}</h2><p>Ocorrência aberta pela população e acompanhada pela equipe municipal.</p><div className="badges"><Badge>{record.priority}</Badge><Badge>{record.status}</Badge><Badge tone="gray">{record.category}</Badge><Badge tone="gray">{record.region}</Badge></div><small>Aberta em {dateTime(record.createdAt)}</small></div><div><small>ID {record.protocol}</small><Badge tone="green">{record.status === 'Resolvida' ? 'Atendimento concluído' : 'Acompanhamento ativo'}</Badge></div></Panel>
     <div className="detail-three"><Panel title="Informações do chamado" subtitle="Dados enviados pelo cidadão"><dl className="info-list">{[['Categoria',record.category],['Endereço',record.address],['Bairro',record.neighborhood],['Região',record.region],['Protocolo',record.protocol]].map(([k,v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl><div className="detail-description"><small>DESCRIÇÃO</small><p>{record.description}</p></div></Panel>
       <Panel title="Foto da ocorrência" subtitle={record.photo ? 'Registro enviado pelo cidadão' : 'Ilustração do protótipo · foto não enviada'}><div className="detail-photo">{record.photo ? <img src={record.photo} alt={'Foto da ocorrência: '+record.title} /> : <ResponsiveAsset src={asset('10-2','imgPhotoMockup')} width={320} height={154} alt="Ilustração de uma via com buraco; não é uma foto deste chamado" />}</div><small className="photo-caption">{record.photo ? 'Foto original do relato' : 'Sem foto anexada a este relato'}</small></Panel>

@@ -12,7 +12,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState('');
   const refresh = useCallback(async () => {
     try {
-      const [all, own] = await Promise.all([api.list(profile?.role === 'manager' ? 'all' : 'public'), session ? api.list('mine') : Promise.resolve([])]);
+      const [all, own] = await Promise.all([api.list(profile?.role === 'manager' || profile?.role === 'admin' ? 'all' : 'public'), session ? api.list('mine') : Promise.resolve([])]);
       setRecords(all); setMine(own); setError('');
     } catch (e) { setError(e instanceof Error ? e.message : 'Erro de conexão.'); }
     finally { setLoading(false); }

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { Occurrence, Region } from '../types';
+import { useCitizenMode } from '../citizenMode';
 
 export const MARILIA_CENTER: [number,number] = [-22.22,-49.95];
 const TILE_URL=import.meta.env.VITE_OSM_TILE_URL || 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -16,6 +17,7 @@ export function CityMap({records=[],variant='dashboard',selected,onSelect,heat=f
   records?:Occurrence[];variant?:Variant;selected?:Region;onSelect?:(region:Region)=>void;
   heat?:boolean;point?:Coordinates|null;onPick?:(point:Coordinates)=>void;
 }){
+  const { enabled: adminCitizenMode } = useCitizenMode();
   const root=useRef<HTMLDivElement>(null),mapRef=useRef<any>(null),layerRef=useRef<any>(null);
   const pickRef=useRef(onPick),selectRef=useRef(onSelect);
   pickRef.current=onPick;selectRef.current=onSelect;
@@ -42,7 +44,7 @@ export function CityMap({records=[],variant='dashboard',selected,onSelect,heat=f
         fillColor:r.status==='Resolvida'?'#10b981':r.priority==='Alta'?'#e8553d':'#2563eb',fillOpacity:heat?.45:.9
       }).addTo(layer);
       const popup=document.createElement('div'),title=document.createElement('strong'),summary=document.createElement('p'),link=document.createElement('a');
-      title.textContent=r.title;summary.textContent=r.protocol+' · '+r.status;link.textContent='Abrir ocorrência';link.href='#/ocorrencias/'+encodeURIComponent(r.id);
+      title.textContent=r.title;summary.textContent=r.protocol+' · '+r.status;link.textContent='Abrir ocorrência';link.href=(adminCitizenMode ? '#/cidadao' : '#')+'/ocorrencias/'+encodeURIComponent(r.id);
       popup.append(title,summary,link);marker.bindPopup(popup);marker.on('click',()=>selectRef.current?.(r.region));
     }
     if(point){
@@ -50,7 +52,7 @@ export function CityMap({records=[],variant='dashboard',selected,onSelect,heat=f
         .bindTooltip('Ponto escolhido',{direction:'top'});
       map.setView([point.latitude,point.longitude],16);
     }
-  },[records,selected,heat,point?.latitude,point?.longitude]);
+  },[records,selected,heat,point?.latitude,point?.longitude,adminCitizenMode]);
   const missing=records.length-located.length;
   return <div className={'osm-map-wrapper map-variant-'+variant}>
     <div className={'osm-map'+(onPick?' osm-map-picker':'')} ref={root}

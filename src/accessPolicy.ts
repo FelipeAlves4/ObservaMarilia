@@ -18,11 +18,20 @@ export function profileAccessIssue(profile: AccessProfile) {
 
 export function canAccessProfile(profile: AccessProfile) { return !profileAccessIssue(profile); }
 export function hasAreaAccess(profile: AccessProfile, area: AccessArea) { return canAccessProfile(profile) && profile?.role === areaRole[area]; }
+export function canOpenProtectedRoute(profile: AccessProfile, route: string) {
+  const role = profile?.role;
+  if (route === '/cidadao' || route.startsWith('/cidadao/')) return canAccessProfile(profile) && role === 'admin';
+  if (route === '/relatar' || route === '/meus-relatos') return canAccessProfile(profile) && role === 'citizen';
+  if (route.startsWith('/gestor')) return canAccessProfile(profile) && (role === 'manager' || role === 'admin');
+  if (route === '/colaborador') return canAccessProfile(profile) && (role === 'collaborator' || role === 'admin');
+  if (route.startsWith('/admin')) return canAccessProfile(profile) && role === 'admin';
+  return true;
+}
 
 export function roleHome(role: AccessRole) { return role === 'admin' ? '/admin/secretarias' : role === 'manager' ? '/gestor' : role === 'collaborator' ? '/colaborador' : '/meus-relatos'; }
 export function allowedDestination(role: AccessRole, requested: string) {
   const route = requested.split('?')[0];
-  if (role === 'admin') return route === '/admin/secretarias' || route === '/admin/gestores';
+  if (role === 'admin') return route === '/admin/secretarias' || route === '/admin/gestores' || route === '/cidadao' || route.startsWith('/cidadao/');
   if (role === 'citizen') return route === '/relatar' || route === '/meus-relatos';
   if (role === 'manager') return route === '/gestor' || route.startsWith('/gestor/');
   return route === '/colaborador';

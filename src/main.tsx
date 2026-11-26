@@ -8,4 +8,5 @@ import './styles.css';
 import App from './App';
 import { DataProvider } from './data';
 import { AuthProvider } from './auth';
-createRoot(document.getElementById('root')!).render(<StrictMode><AuthProvider><DataProvider><App /></DataProvider></AuthProvider></StrictMode>);
+import { CitizenModeProvider } from './citizenMode';
+createRoot(document.getElementById('root')!).render(<StrictMode><AuthProvider><DataProvider><CitizenModeProvider><App /></CitizenModeProvider></DataProvider></AuthProvider></StrictMode>);

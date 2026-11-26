@@ -4,7 +4,9 @@ import { Filters, defaultFilters, filterRecords } from '../components/Filters';
 import { Badge, Empty, Panel, RecentList, PageHeading } from '../components/ui';
 import { exportCsv, signals } from '../helpers';
 import type { Occurrence } from '../types';
+import { useCitizenMode } from '../citizenMode';
 export function MapPage({ records, manager = false, initialRegion = '' }: { records: Occurrence[]; manager?: boolean; initialRegion?: string }) {
+  const { href } = useCitizenMode();
   const [filters,setFilters]=useState({...defaultFilters,region:initialRegion});
   const [selected,setSelected]=useState(initialRegion || 'Zona Norte');
   const [heat,setHeat]=useState(true);
@@ -16,7 +18,7 @@ export function MapPage({ records, manager = false, initialRegion = '' }: { reco
     <div className="map-page-grid"><Panel title="Mapa de ocorrências" subtitle={`${visible.length} ocorrências visíveis nesta área`} action={<Badge tone="green">Mapa real</Badge>}><CityMap records={visible} variant="full" selected={selected as import('../types').Region} onSelect={setSelected} heat={heat} /><div className="osm-region-picker">{(['Zona Norte','Centro','Zona Leste','Zona Sul','Zona Oeste'] as const).map(region=><button type="button" className={selected===region?'active':''} onClick={()=>setSelected(region)} key={region}>{region}</button>)}</div><div className="map-footer"><div><small>Área selecionada</small><strong>{selected}</strong></div><button className="btn btn-outline" onClick={() => exportCsv(visible)}>Exportar visão</button></div></Panel>
       <Panel className="map-aside"><small className="eyebrow">ÁREA SELECIONADA</small><h2>{selected}</h2><p>Chamados do período e filtros selecionados</p><div className="mini-stats"><div><strong>{regionRecords.length}</strong><small>Ocorrências</small></div><div><strong>{regionRecords.filter(r => r.status !== 'Resolvida').length}</strong><small>Em aberto</small></div></div>
         {alert ? <div className="intelligence small-intelligence"><small>INTELIGÊNCIA DA CIDADE</small><h3>Concentração detectada</h3><p>{alert.description}</p><div className="suggestion">Sugestão<p>Priorizar vistoria de {alert.category.toLowerCase()} nesta região.</p></div></div> : null}
-        <h3 className="spaced-title">Ocorrências da região</h3><RecentList records={regionRecords} manager={manager} limit={5} />{!regionRecords.length ? <Empty title="Nenhum relato nesta região." text="Selecione outro ponto ou limpe os filtros." /> : null}<a className="btn full-width" href={manager ? '#/gestor/ocorrencias' : '#/meus-relatos'}>{manager ? 'Ver fila completa de ocorrências' : 'Acompanhar meus relatos'}</a>
+        <h3 className="spaced-title">Ocorrências da região</h3><RecentList records={regionRecords} manager={manager} limit={5} />{!regionRecords.length ? <Empty title="Nenhum relato nesta região." text="Selecione outro ponto ou limpe os filtros." /> : null}<a className="btn full-width" href={manager ? '#/gestor/ocorrencias' : href('/meus-relatos')}>{manager ? 'Ver fila completa de ocorrências' : 'Acompanhar meus relatos'}</a>
       </Panel></div>
   </>;
 }
