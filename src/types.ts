@@ -3,7 +3,7 @@ export const regions = ['Zona Norte', 'Centro', 'Zona Leste', 'Zona Sul', 'Zona 
 export const statuses = ['Nova', 'Em análise', 'Programada', 'Em execução', 'Aguardando validação', 'Resolvida'] as const;
 export const teams = ['Equipe Norte 02', 'Equipe Centro 01', 'Equipe Luz 03', 'Equipe Limpeza 04', 'Equipe Verde 01'] as const;
 export type Category = typeof categories[number];
-export type Region = typeof regions[number];
+export type Region = typeof regions[number] | 'Não informada';
 export type Status = typeof statuses[number];
 export type Priority = 'Alta' | 'Média' | 'Baixa';
 export interface HistoryEvent { title: string; note: string; createdAt: string; action?: string; fromStatus?: Status | null; toStatus?: Status | null; actorName?: string; actorRole?: string; attachmentRef?: string | null }
