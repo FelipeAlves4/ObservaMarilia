@@ -269,6 +269,9 @@ td .btn { font-size:10px; }
 .analysis-list dd { margin:5px 0 0; font-size:11px; }
 .detail-two { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
 .location-detail { display:flex; align-items:center; gap:28px; }
+.detail-real-map { width:min(100%,320px); min-width:240px; }
+.detail-real-map .osm-map { height:220px !important; }
+.detail-real-map > a { display:inline-block; margin-top:8px; font-size:12px; }
 .location-detail>div:last-child { flex:1; }
 .location-detail p { font-size:10px; margin-top:5px; }
 .location-detail strong { display:block; margin-top:16px; font-size:20px; }
