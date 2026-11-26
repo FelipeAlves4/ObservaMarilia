@@ -7,7 +7,8 @@ type Input = InviteInput | StatusInput;
 
 const json = (status: number, body: unknown, origin = "") => new Response(JSON.stringify(body), {
   status, headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Vary": "Origin" },
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "POST, OPTIONS", "Vary": "Origin" },
 });
 const allowedOrigin = (request: Request) => {
   const origin = request.headers.get("Origin") ?? "";
@@ -17,7 +18,15 @@ const allowedOrigin = (request: Request) => {
 
 Deno.serve(async (request) => {
   const origin = allowedOrigin(request);
-  if (request.method === "OPTIONS") return json(204, {}, origin);
+  if (request.method === "OPTIONS") return new Response(null, {
+    status: origin ? 204 : 403,
+    headers: {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Vary": "Origin",
+    },
+  });
   if (!origin) return json(403, { error: "Origem não autorizada." });
   if (request.method !== "POST") return json(405, { error: "Método não permitido." }, origin);
   const url = Deno.env.get("SUPABASE_URL"), anonKey = Deno.env.get("SUPABASE_ANON_KEY"), serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
